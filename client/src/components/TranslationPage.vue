@@ -26,9 +26,12 @@ export default {
     }
   },
   methods: {
-    submitText() {
+    async submitText() {
+      const result = await axios.post(`http://127.0.0.1:5000/similarity`, {sentence1: this.toCheckSentence, sentence2: this.textInput});
+      console.log(result);
+
       // Do something with the text input, for example:
-      this.feedbackText = `You submitted: ${this.textInput}`;
+      this.feedbackText = `You scored: ${(result.data.similarity * 100).toFixed(2)}%`;
     }
   },
   mounted() {
