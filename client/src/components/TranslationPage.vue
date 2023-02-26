@@ -15,35 +15,49 @@
 
 <script>
 import axios from 'axios';
+import { useStorage } from '@vueuse/core';
+const storage = useStorage('my-store', { currentSentenceIndex: 0 }, localStorage,
+  { mergeDefaults: true });
+
+import { ref, onMounted } from 'vue';
 
 export default {
-  data() {
-    return {
-      headerText: "Enter some text",
-      textInput: "",
-      feedbackText: "",
-      toCheckSentence: ""
-    }
-  },
-  methods: {
-    async submitText() {
-      const result = await axios.post(`http://127.0.0.1:5000/similarity`, {sentence1: this.toCheckSentence, sentence2: this.textInput});
+  setup() {
+      const headerText = ref("Enter some text");
+      const textInput=  ref("");
+      const feedbackText = ref("");
+      const toCheckSentence = ref("");
+
+    const submitText = async () => {
+      const result = await axios.post(`http://127.0.0.1:5000/similarity`, { sentence1: toCheckSentence.value, sentence2: textInput.value });
       console.log(result);
 
       // Do something with the text input, for example:
-      this.feedbackText = `You scored: ${(result.data.similarity * 100).toFixed(2)}%`;
-    }
-  },
-  mounted() {
-    let currentSentence = 0
-    axios.get(`http://127.0.0.1:5000/sentences?lineNumber=${currentSentence}`)
-      .then(response => {
-        this.headerText = response.data[0];
-        this.toCheckSentence = response.data[1];
-      })
-      .catch(error => {
+      feedbackText.value = `You scored: ${(result.data.similarity * 100).toFixed(2)}%`;
+    };
+
+    const fetchSentences = async () => {
+      try {
+        console.log(storage.value.currentSentenceIndex, storage);
+        const response = await axios.get(`http://127.0.0.1:5000/sentences?lineNumber=${storage.value.currentSentenceIndex}`);
+        headerText.value = response.data[0];
+        toCheckSentence.value = response.data[1];
+      } catch (error) {
         console.error(error);
-      });
+      }
+    };
+
+    onMounted(() => {
+      fetchSentences();
+    });
+
+    return {
+      headerText,
+      textInput,
+      feedbackText,
+      toCheckSentence,
+      submitText
+    };
   }
 }
 </script>
