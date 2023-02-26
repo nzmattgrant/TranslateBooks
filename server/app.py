@@ -7,6 +7,8 @@ app.config['CORS_HEADERS'] = 'Content-Type'
 #load up the semantic similarity
 from sentence_transformers import SentenceTransformer, util
 model = SentenceTransformer('sentence-transformers/all-MiniLM-L6-v2')
+file_name = 'matched_deepl_translations.pkl'
+df = pd.read_pickle(file_name)
 
 @app.route("/")
 def hello():
@@ -18,8 +20,6 @@ def get_sentence():
     args = request.args
     line_num = int(args['lineNumber'])
     print(line_num)
-    file_name = 'matched_deepl_translations.pkl'
-    df = pd.read_pickle(file_name)
     print(df.shape)
     print(df)
     row = df.iloc[:, line_num]
@@ -39,6 +39,13 @@ def check_similarity():
 
     similarity = util.pytorch_cos_sim(embedding_1, embedding_2)
     return {"similarity": similarity.item()}
+
+@app.route("/bookInfo", methods=['GET'])
+def book_info():
+   return {
+      "bookTitle": "Thus spake Tharathustra",
+      "numberOfSentences": df.shape[1]
+   }
 
 if __name__ == "__main__":
   app.run()

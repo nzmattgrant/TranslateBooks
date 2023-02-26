@@ -4,9 +4,9 @@
       <div class="header">{{ headerText }}</div>
       <textarea v-model="textInput"></textarea>
       <div class="button-group">
-        <button class="previous" @click="previous">Previous</button>
+        <button class="previous" @click="goToPrevious">Previous</button>
         <button class="submit" @click="submitText">Submit</button>
-        <button class="next" @click="next">Next</button>
+        <button class="next" @click="goToNext">Next</button>
       </div>
       <div class="feedback">{{ feedbackText }}</div>
     </div>
@@ -23,21 +23,41 @@ import { ref, onMounted } from 'vue';
 
 export default {
   setup() {
-      const headerText = ref("Enter some text");
-      const textInput=  ref("");
-      const feedbackText = ref("");
-      const toCheckSentence = ref("");
+    const headerText = ref("Enter some text");
+    const textInput = ref("");
+    const feedbackText = ref("");
+    const toCheckSentence = ref("");
+    const numberOfSentences = ref(0);
+    const bookTitle = ref("");
 
     const submitText = async () => {
       const result = await axios.post(`http://127.0.0.1:5000/similarity`, { sentence1: toCheckSentence.value, sentence2: textInput.value });
       console.log(result);
 
-      // Do something with the text input, for example:
       feedbackText.value = `You scored: ${(result.data.similarity * 100).toFixed(2)}%`;
+    };
+
+    const goToNext = async () => {
+      console.log(numberOfSentences.value);
+      if(storage.value.currentSentenceIndex === numberOfSentences.value - 1){
+        return;
+      }
+      storage.value.currentSentenceIndex = storage.value.currentSentenceIndex + 1;
+      fetchSentences();
+    };
+
+    const goToPrevious = async () => {
+      if(storage.value.currentSentenceIndex === 0){
+        return;
+      }
+      storage.value.currentSentenceIndex = storage.value.currentSentenceIndex - 1;
+      fetchSentences();
     };
 
     const fetchSentences = async () => {
       try {
+        textInput.value = "";
+        feedbackText.value = "";
         console.log(storage.value.currentSentenceIndex, storage);
         const response = await axios.get(`http://127.0.0.1:5000/sentences?lineNumber=${storage.value.currentSentenceIndex}`);
         headerText.value = response.data[0];
@@ -47,7 +67,14 @@ export default {
       }
     };
 
+    const getBookInfo = async () => {
+      const result = await axios.get(`http://127.0.0.1:5000/bookInfo`);//todo allow more than one book
+      bookTitle.value = result.data["bookTitle"];
+      numberOfSentences.value = result.data["numberOfSentences"];
+    }
+
     onMounted(() => {
+      getBookInfo()
       fetchSentences();
     });
 
@@ -56,6 +83,10 @@ export default {
       textInput,
       feedbackText,
       toCheckSentence,
+      goToNext,
+      goToPrevious,
+      numberOfSentences,
+      bookTitle,
       submitText
     };
   }
