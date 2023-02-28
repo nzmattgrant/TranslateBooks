@@ -1,6 +1,12 @@
-from flask import Flask, request
+from flask import Flask, jsonify, request
 import pandas as pd
 from flask_cors import CORS, cross_origin
+from nltk.tokenize import WhitespaceTokenizer
+from PyMultiDictionary import MultiDictionary, DICT_EDUCALINGO
+from nltk.stem.snowball import GermanStemmer
+st = GermanStemmer()
+import nltk
+dictionary = MultiDictionary()
 app = Flask(__name__)
 cors = CORS(app)
 app.config['CORS_HEADERS'] = 'Content-Type'
@@ -14,7 +20,6 @@ df = pd.read_pickle(file_name)
 def hello():
   return "Server Running!"
 
-
 @app.route("/sentences", methods=['GET'])
 def get_sentence():
     args = request.args
@@ -26,6 +31,26 @@ def get_sentence():
     print(row)
     return [row.iloc[0], row.iloc[1]]
 
+@app.route("/sentences2", methods=['GET'])
+def get_sentence():
+    args = request.args
+    line_num = int(args['lineNumber'])
+    print(line_num)
+    print(df.shape)
+    print(df)
+    row = df.iloc[:, line_num]
+    print(row)
+    tk = WhitespaceTokenizer()
+    presentation_sentence_with_definition = []
+    presentation_sentence_tokenized = tk.tokenize(row.iloc[0])
+    for token in presentation_sentence_tokenized:
+      presentation_sentence_with_definition.append({ "word": token, "definition": dictionary.meaning('de', token, dictionary=DICT_EDUCALINGO)})
+    second_sentence = row.iloc[1]
+
+    return jsonify({
+       "presentation_sentence": presentation_sentence_with_definition,
+       "translation": second_sentence
+    })
 
 
 @app.route("/similarity", methods=['POST'])
@@ -39,6 +64,21 @@ def check_similarity():
 
     similarity = util.pytorch_cos_sim(embedding_1, embedding_2)
     return {"similarity": similarity.item()}
+
+@app.route("/translate", methods=['GET'])
+def translate():
+    args = request.args
+    word = args['word']
+    print(dictionary.meaning('de', word, dictionary=DICT_EDUCALINGO), dictionary.translate('de', word))
+    return jsonify(dictionary.meaning('de', word, dictionary=DICT_EDUCALINGO))
+    #return list(filter(lambda translation: translation[0] == "en", dictionary.translate('de', word)))[0][1]
+
+
+@app.route("/stem", methods=['GET'])
+def stem():
+    args = request.args
+    word = args['word']
+    return jsonify(st.stem(word))
 
 @app.route("/bookInfo", methods=['GET'])
 def book_info():
