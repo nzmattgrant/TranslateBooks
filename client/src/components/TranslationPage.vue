@@ -130,7 +130,6 @@ textarea {
 .button-group button {
   font-size: 24px;
   padding: 20px;
-  margin: 0 1%;
 }
 
 .previous {
