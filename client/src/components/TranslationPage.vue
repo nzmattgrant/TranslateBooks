@@ -1,7 +1,19 @@
 <template>
   <div class="full-page">
     <div class="content">
-      <div class="header">{{ headerText }}</div>
+      <div class="header">
+        <div v-for="(token, id) of displaySentenceTokenized" :key="id">
+          <Popper>
+            <button>{{ token.word + " " }}</button>
+            <template #content>
+              <div>{{ token.definition?.description }}</div>
+            </template>
+          </Popper>
+          <!-- <span v-b-popover.hover.bottom="token.definition.description" :title="token.definition.description">
+              {{ token.word + " " }}
+          </span> -->
+        </div>
+      </div>
       <textarea v-model="textInput"></textarea>
       <div class="button-group">
         <button class="previous" @click="goToPrevious">Previous</button>
@@ -14,6 +26,7 @@
 </template>
 
 <script>
+import Popper from "vue3-popper";
 import axios from 'axios';
 import { useStorage } from '@vueuse/core';
 const storage = useStorage('my-store', { currentSentenceIndex: 0 }, localStorage,
@@ -23,7 +36,11 @@ import { ref, onMounted } from 'vue';
 
 export default {
   setup() {
-    const headerText = ref("Enter some text");
+    const displaySentenceTokenized = ref([{
+      "definition": null,
+      "lemma": null,
+      "word": "Enter some text"
+    }]);
     const textInput = ref("");
     const feedbackText = ref("");
     const toCheckSentence = ref("");
@@ -39,7 +56,7 @@ export default {
 
     const goToNext = async () => {
       console.log(numberOfSentences.value);
-      if(storage.value.currentSentenceIndex === numberOfSentences.value - 1){
+      if (storage.value.currentSentenceIndex === numberOfSentences.value - 1) {
         return;
       }
       storage.value.currentSentenceIndex = storage.value.currentSentenceIndex + 1;
@@ -47,7 +64,7 @@ export default {
     };
 
     const goToPrevious = async () => {
-      if(storage.value.currentSentenceIndex === 0){
+      if (storage.value.currentSentenceIndex === 0) {
         return;
       }
       storage.value.currentSentenceIndex = storage.value.currentSentenceIndex - 1;
@@ -59,9 +76,10 @@ export default {
         textInput.value = "";
         feedbackText.value = "";
         console.log(storage.value.currentSentenceIndex, storage);
-        const response = await axios.get(`http://127.0.0.1:5000/sentences?lineNumber=${storage.value.currentSentenceIndex}`);
-        headerText.value = response.data[0];
-        toCheckSentence.value = response.data[1];
+        const response = await axios.get(`http://127.0.0.1:5000/sentences2?lineNumber=${storage.value.currentSentenceIndex}`);
+        console.log(response.data);
+        displaySentenceTokenized.value = response.data.presentation_sentence_tokens;
+        toCheckSentence.value = response.data.translation;
       } catch (error) {
         console.error(error);
       }
@@ -79,7 +97,8 @@ export default {
     });
 
     return {
-      headerText,
+      Popper,
+      displaySentenceTokenized,
       textInput,
       feedbackText,
       toCheckSentence,
