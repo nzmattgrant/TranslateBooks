@@ -2,16 +2,17 @@
   <div class="full-page">
     <div class="content">
       <div class="header">
-        <div v-for="(token, id) of displaySentenceTokenized" :key="id">
-          <Popper>
-            <button>{{ token.word + " " }}</button>
+        <div class="popper" v-for="(token, id) of displaySentenceTokenized" :key="id">
+          <Popper v-if="!!token.word" class="popper-inner">
+            <span>{{ token.word }}&nbsp</span>
             <template #content>
-              <div>{{ token.definition?.description }}</div>
+              <div class="popover">
+                <div class="popover-header">{{ token.word }} ({{ token.definition?.function }}) translation from <a target="_blank" :href="token.definition?.link">Deepl</a></div>
+                <div class="popover-body">{{ token.definition?.description }}</div>
+              </div>
             </template>
           </Popper>
-          <!-- <span v-b-popover.hover.bottom="token.definition.description" :title="token.definition.description">
-              {{ token.word + " " }}
-          </span> -->
+          <span v-else>{{ token.word }}&nbsp</span>
         </div>
       </div>
       <textarea v-model="textInput"></textarea>
@@ -113,6 +114,10 @@ export default {
 </script>
 
 <style>
+.popper {
+  display: inline;
+}
+
 .full-page {
   height: 100vh;
   display: flex;
@@ -161,5 +166,23 @@ textarea {
 
 .next {
   flex: 0 0 10%;
+}
+
+:root {
+  --popper-theme-background-color: #333333;
+  --popper-theme-background-color-hover: #333333;
+  --popper-theme-text-color: #ffffff;
+  --popper-theme-border-width: 0px;
+  --popper-theme-border-style: solid;
+  --popper-theme-border-radius: 6px;
+  --popper-theme-padding: 32px;
+  --popper-theme-box-shadow: 0 6px 30px -6px rgba(0, 0, 0, 0.25);
+}
+.popover{
+  font-size: 20pt;
+}
+.popover-header {
+  font-weight: bold;
+  margin-bottom: 10px;
 }
 </style>

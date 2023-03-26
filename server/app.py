@@ -5,6 +5,7 @@ import pandas as pd
 from flask_cors import CORS
 from PyMultiDictionary import MultiDictionary, DICT_EDUCALINGO
 from nltk.stem.snowball import GermanStemmer
+import pickle
 st = GermanStemmer()
 nlp = spacy.load('de_dep_news_trf')
 dictionary = MultiDictionary()
@@ -15,6 +16,11 @@ app.config['CORS_HEADERS'] = 'Content-Type'
 model = SentenceTransformer('sentence-transformers/all-MiniLM-L6-v2')
 file_name = 'matched_deepl_translations.pkl'
 df = pd.read_pickle(file_name)
+
+translation_dict = {}
+
+with open("traslation_dict.pkl", "rb") as f:
+    translation_dict = pickle.load(f)
 
 
 @app.route("/")
@@ -38,23 +44,19 @@ def get_sentence():
 def get_sentence2():
     args = request.args
     line_num = int(args['lineNumber'])
-    print(line_num)
-    print(df.shape)
-    print(df)
     row = df.iloc[:, line_num]
-    print(row)
     presentation_sentence_tokens_with_definition = []
     presentation_sentence_tokenized = nlp(row.iloc[0])
     for token in presentation_sentence_tokenized:
-      definition = dictionary.meaning(
-          'de', token.lemma_, dictionary=DICT_EDUCALINGO)
-      print(type(definition), len(definition), definition[2])
+    #   definition = dictionary.meaning(
+    #       'de', token.lemma_, dictionary=DICT_EDUCALINGO)
       presentation_sentence_tokens_with_definition.append({
           "word": str(token),
           "lemma":  str(token.lemma_),
           "definition": {
-            "function": definition[0],
-            "description": definition[1]
+            "link": f"https://www.deepl.com/translator#de/en/{token.text}",
+            "function": spacy.explain(token.pos_),
+            "description": translation_dict[token.text]
           }
       })
     second_sentence = row.iloc[1]
