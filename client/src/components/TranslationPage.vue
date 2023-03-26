@@ -49,7 +49,7 @@ export default {
     const bookTitle = ref("");
 
     const submitText = async () => {
-      const result = await axios.post(`http://127.0.0.1:5000/similarity`, { sentence1: toCheckSentence.value, sentence2: textInput.value });
+      const result = await axios.post(`/api/similarity`, { sentence1: toCheckSentence.value, sentence2: textInput.value });
       console.log(result);
 
       feedbackText.value = `You scored: ${(result.data.similarity * 100).toFixed(2)}%`;
@@ -77,7 +77,7 @@ export default {
         textInput.value = "";
         feedbackText.value = "";
         console.log(storage.value.currentSentenceIndex, storage);
-        const response = await axios.get(`http://127.0.0.1:5000/sentences2?lineNumber=${storage.value.currentSentenceIndex}`);
+        const response = await axios.get(`/api/sentences2?lineNumber=${storage.value.currentSentenceIndex}`);
         console.log(response.data);
         displaySentenceTokenized.value = response.data.presentation_sentence_tokens;
         toCheckSentence.value = response.data.translation;
@@ -87,7 +87,7 @@ export default {
     };
 
     const getBookInfo = async () => {
-      const result = await axios.get(`http://127.0.0.1:5000/bookInfo`);//todo allow more than one book
+      const result = await axios.get(`/api/bookInfo`);//todo allow more than one book
       bookTitle.value = result.data["bookTitle"];
       numberOfSentences.value = result.data["numberOfSentences"];
     }

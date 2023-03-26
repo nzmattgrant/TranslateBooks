@@ -28,7 +28,7 @@ def hello():
   return "Server Running!"
 
 
-@app.route("/sentences", methods=['GET'])
+@app.route("/api/sentences", methods=['GET'])
 def get_sentence():
     args = request.args
     line_num = int(args['lineNumber'])
@@ -40,7 +40,7 @@ def get_sentence():
     return [row.iloc[0], row.iloc[1]]
 
 
-@app.route("/sentences2", methods=['GET'])
+@app.route("/api/sentences2", methods=['GET'])
 def get_sentence2():
     args = request.args
     line_num = int(args['lineNumber'])
@@ -67,7 +67,7 @@ def get_sentence2():
     })
 
 
-@app.route("/similarity", methods=['POST'])
+@app.route("/api/similarity", methods=['POST'])
 def check_similarity():
     data = request.get_json()
     sentence1 = data["sentence1"]
@@ -80,7 +80,7 @@ def check_similarity():
     return {"similarity": similarity.item()}
 
 
-@app.route("/translate", methods=['GET'])
+@app.route("/api/translate", methods=['GET'])
 def translate():
     args = request.args
     word = args['word']
@@ -90,14 +90,14 @@ def translate():
     # return list(filter(lambda translation: translation[0] == "en", dictionary.translate('de', word)))[0][1]
 
 
-@app.route("/stem", methods=['GET'])
+@app.route("/api/stem", methods=['GET'])
 def stem():
     args = request.args
     word = args['word']
     return jsonify(st.stem(word))
 
 
-@app.route("/bookInfo", methods=['GET'])
+@app.route("/api/bookInfo", methods=['GET'])
 def book_info():
    return {
        "bookTitle": "Thus spake Tharathustra",
