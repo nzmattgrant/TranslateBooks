@@ -1,15 +1,17 @@
 from sentence_transformers import SentenceTransformer, util
 import spacy
-from flask import Flask, jsonify, request
+from flask import Flask, jsonify, request, send_file
+import os
 import pandas as pd
 from flask_cors import CORS
 from PyMultiDictionary import MultiDictionary, DICT_EDUCALINGO
 from nltk.stem.snowball import GermanStemmer
 import pickle
+
 st = GermanStemmer()
 nlp = spacy.load('de_dep_news_trf')
 dictionary = MultiDictionary()
-app = Flask(__name__)
+app = Flask(__name__, static_folder='dist')
 cors = CORS(app)
 app.config['CORS_HEADERS'] = 'Content-Type'
 # load up the semantic similarity
@@ -23,9 +25,11 @@ with open("traslation_dict.pkl", "rb") as f:
     translation_dict = pickle.load(f)
 
 
-@app.route("/")
-def hello():
-  return "Server Running!"
+@app.route('/')
+def index_client():
+    dist_dir = os.path.dirname(__file__)
+    entry = os.path.join(os.path.join(dist_dir,'dist'), 'index.html')
+    return send_file(entry)
 
 
 @app.route("/api/sentences", methods=['GET'])
@@ -104,6 +108,24 @@ def book_info():
        "numberOfSentences": df.shape[1]
    }
 
+# import mimetypes
+
+# mimetypes.add_type('application/javascript', '.js')
+
+# @app.route('/assets/<filename>')
+# def serve_static(filename):
+#     path = os.path.join(os.path.join(current_app.root_path, 'dist'), 'assets')
+#     split_name = os.path.splitext(filename)
+#     file_extension = split_name[len(split_name) - 1]
+#     print(path, file_extension)
+#     mime_type = mimetypes.guess_type(filename)[0]
+#     mimetypes.guess_extension
+#     print(path, mime_type)
+#     return send_from_directory(path, filename, mimetype=mime_type)
+
+@app.route('/<path:path>')
+def static_proxy(path):
+    return app.send_static_file(path)
 
 if __name__ == "__main__":
   app.run()
