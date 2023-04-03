@@ -4,13 +4,9 @@ from flask import Flask, jsonify, request, send_file
 import os
 import pandas as pd
 from flask_cors import CORS
-from PyMultiDictionary import MultiDictionary, DICT_EDUCALINGO
-from nltk.stem.snowball import GermanStemmer
 import pickle
 
-st = GermanStemmer()
 nlp = spacy.load('de_dep_news_trf')
-dictionary = MultiDictionary()
 app = Flask(__name__, static_folder='dist')
 cors = CORS(app)
 app.config['CORS_HEADERS'] = 'Content-Type'
@@ -52,8 +48,6 @@ def get_sentence2():
     presentation_sentence_tokens_with_definition = []
     presentation_sentence_tokenized = nlp(row.iloc[0])
     for token in presentation_sentence_tokenized:
-    #   definition = dictionary.meaning(
-    #       'de', token.lemma_, dictionary=DICT_EDUCALINGO)
       presentation_sentence_tokens_with_definition.append({
           "word": str(token),
           "lemma":  str(token.lemma_),
@@ -84,21 +78,21 @@ def check_similarity():
     return {"similarity": similarity.item()}
 
 
-@app.route("/api/translate", methods=['GET'])
-def translate():
-    args = request.args
-    word = args['word']
-    print(dictionary.meaning('de', word, dictionary=DICT_EDUCALINGO),
-          dictionary.translate('de', word))
-    return jsonify(dictionary.meaning('de', word, dictionary=DICT_EDUCALINGO))
-    # return list(filter(lambda translation: translation[0] == "en", dictionary.translate('de', word)))[0][1]
+# @app.route("/api/translate", methods=['GET'])
+# def translate():
+#     args = request.args
+#     word = args['word']
+#     print(dictionary.meaning('de', word, dictionary=DICT_EDUCALINGO),
+#           dictionary.translate('de', word))
+#     return jsonify(dictionary.meaning('de', word, dictionary=DICT_EDUCALINGO))
+#     # return list(filter(lambda translation: translation[0] == "en", dictionary.translate('de', word)))[0][1]
 
 
-@app.route("/api/stem", methods=['GET'])
-def stem():
-    args = request.args
-    word = args['word']
-    return jsonify(st.stem(word))
+# @app.route("/api/stem", methods=['GET'])
+# def stem():
+#     args = request.args
+#     word = args['word']
+#     return jsonify(st.stem(word))
 
 
 @app.route("/api/bookInfo", methods=['GET'])
@@ -107,21 +101,6 @@ def book_info():
        "bookTitle": "Thus spake Tharathustra",
        "numberOfSentences": df.shape[1]
    }
-
-# import mimetypes
-
-# mimetypes.add_type('application/javascript', '.js')
-
-# @app.route('/assets/<filename>')
-# def serve_static(filename):
-#     path = os.path.join(os.path.join(current_app.root_path, 'dist'), 'assets')
-#     split_name = os.path.splitext(filename)
-#     file_extension = split_name[len(split_name) - 1]
-#     print(path, file_extension)
-#     mime_type = mimetypes.guess_type(filename)[0]
-#     mimetypes.guess_extension
-#     print(path, mime_type)
-#     return send_from_directory(path, filename, mimetype=mime_type)
 
 @app.route('/<path:path>')
 def static_proxy(path):
