@@ -1,6 +1,8 @@
-FROM python:3-alpine3.10
+FROM python:3.10
 WORKDIR /app
 COPY . /app
-RUN p install -r requirements.txt
+RUN pip install --upgrade pip &&\
+    pip install -r requirements.txt
 EXPOSE 5000
-CMD python ./app.py
+ENV FLASK_APP=app.py
+CMD ["flask", "run", "--host", "0.0.0.0"]
