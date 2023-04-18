@@ -6,7 +6,7 @@ import pandas as pd
 from flask_cors import CORS
 import pickle
 
-nlp = spacy.load('de_dep_news_trf')
+nlp = spacy.load('de_core_news_sm')
 app = Flask(__name__, static_folder='dist')
 cors = CORS(app)
 app.config['CORS_HEADERS'] = 'Content-Type'
