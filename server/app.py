@@ -5,18 +5,8 @@ from flask_cors import CORS
 import pickle
 import requests
 from configuration import HUGGING_FACE_API_KEY
-# import sys
-# from sentence_transformers import SentenceTransformer, util
-# from memory_profiler import profile
 
-# nlp = None
-# model = None
-# df = None
-# translation_dict = None
-# nlp = spacy.load('de_core_news_sm')
-# model = SentenceTransformer('sentence-transformers/all-MiniLM-L6-v2')
-# #print(sys.getsizeof(model))
-def get_similarity(original_sentence, sentence_to_compare):
+def calculate_similarity(original_sentence, sentence_to_compare):
     API_URL = "https://api-inference.huggingface.co/models/sentence-transformers/all-MiniLM-L6-v2"
     headers = {"Authorization": f"Bearer {HUGGING_FACE_API_KEY}"}
 
@@ -37,7 +27,6 @@ def get_similarity(original_sentence, sentence_to_compare):
 
 file_name = 'matched_deepl_translations.pkl'
 df = pd.read_pickle(file_name)
-#print(sys.getsizeof(df))
 
 translation_dict = {}
 
@@ -49,20 +38,9 @@ german_token_dicts = {}
 with open("german_token_dicts.pkl", "rb") as f:
     german_token_dicts = pickle.load(f)
 
-#print(sys.getsizeof(nlp))
 app = Flask(__name__, static_folder='dist')
 cors = CORS(app)
 app.config['CORS_HEADERS'] = 'Content-Type'
-# load up the semantic similarity
-
-# # @profile
-# def run_setup():
-
-
-#print(sys.getsizeof(translation_dict))
-# run_setup()
-
-# print("done")
 
 @app.route('/')
 def index_client():
@@ -75,38 +53,8 @@ def index_client():
 def get_sentence():
     args = request.args
     line_num = int(args['lineNumber'])
-    print(line_num)
-    print(df.shape)
-    print(df)
     row = df.iloc[:, line_num]
-    print(row)
     return [row.iloc[0], row.iloc[1]]
-
-
-@app.route("/api/sentences_old", methods=['GET'])
-def get_sentence_old():
-    args = request.args
-    line_num = int(args['lineNumber'])
-    row = df.iloc[:, line_num]
-    presentation_sentence_tokens_with_definition = []
-    presentation_sentence_tokenized = nlp(row.iloc[0])
-    for token in presentation_sentence_tokenized:
-      presentation_sentence_tokens_with_definition.append({
-          "word": str(token),
-          "lemma":  str(token.lemma_),
-          "definition": {
-            "link": f"https://www.deepl.com/translator#de/en/{token.text}",
-            "function": spacy.explain(token.pos_),
-            "description": translation_dict[token.text]
-          }
-      })
-    second_sentence = row.iloc[1]
-
-    return jsonify({
-        "presentation_sentence_tokens": presentation_sentence_tokens_with_definition,
-        "translation": second_sentence
-    })
-
 
 @app.route("/api/sentences2", methods=['GET'])
 def get_sentence2():
@@ -137,12 +85,7 @@ def check_similarity():
     data = request.get_json()
     sentence1 = data["sentence1"]
     sentence2 = data["sentence2"]
-    # Compute embedding for both lists
-    # embedding_1 = model.encode(sentence1, convert_to_tensor=True)
-    # embedding_2 = model.encode(sentence2, convert_to_tensor=True)
-
-    # similarity = util.pytorch_cos_sim(embedding_1, embedding_2)
-    result = get_similarity(sentence1, sentence2)
+    result = calculate_similarity(sentence1, sentence2)
     print(result)
     return {"similarity": result[0]}
 
