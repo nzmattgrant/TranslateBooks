@@ -44,6 +44,11 @@ translation_dict = {}
 with open("traslation_dict.pkl", "rb") as f:
     translation_dict = pickle.load(f)
 
+german_token_dicts = {}
+
+with open("german_token_dicts.pkl", "rb") as f:
+    german_token_dicts = pickle.load(f)
+
 #print(sys.getsizeof(nlp))
 app = Flask(__name__, static_folder='dist')
 cors = CORS(app)
@@ -78,8 +83,8 @@ def get_sentence():
     return [row.iloc[0], row.iloc[1]]
 
 
-@app.route("/api/sentences2", methods=['GET'])
-def get_sentence2():
+@app.route("/api/sentences_old", methods=['GET'])
+def get_sentence_old():
     args = request.args
     line_num = int(args['lineNumber'])
     row = df.iloc[:, line_num]
@@ -103,6 +108,30 @@ def get_sentence2():
     })
 
 
+@app.route("/api/sentences2", methods=['GET'])
+def get_sentence2():
+    args = request.args
+    line_num = int(args['lineNumber'])
+    row = german_token_dicts.iloc[line_num]["token_dicts"]
+    presentation_sentence_tokens_with_definition = []
+    for token_info in row:
+      token = token_info["word"]
+      presentation_sentence_tokens_with_definition.append({
+          "word": token,
+          "lemma": token_info["lemma"],
+          "definition": {
+            "link": f"https://www.deepl.com/translator#de/en/{token}",
+            "function": token_info["function"],
+            "description": translation_dict[token]
+          }
+      })
+    second_sentence = row = df.iloc[:, line_num][1]
+
+    return jsonify({
+        "presentation_sentence_tokens": presentation_sentence_tokens_with_definition,
+        "translation": second_sentence
+    })
+
 @app.route("/api/similarity", methods=['POST'])
 def check_similarity():
     data = request.get_json()
@@ -113,8 +142,9 @@ def check_similarity():
     # embedding_2 = model.encode(sentence2, convert_to_tensor=True)
 
     # similarity = util.pytorch_cos_sim(embedding_1, embedding_2)
-    result = check_similarity(sentence1, sentence2)
-    return {"similarity": result}
+    result = get_similarity(sentence1, sentence2)
+    print(result)
+    return {"similarity": result[0]}
 
 
 @app.route("/api/bookInfo", methods=['GET'])
