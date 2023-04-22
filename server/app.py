@@ -3,8 +3,10 @@ import os
 import pandas as pd
 from flask_cors import CORS
 import pickle
+import requests
+from configuration import HUGGING_FACE_API_KEY
 # import sys
-from sentence_transformers import SentenceTransformer, util
+# from sentence_transformers import SentenceTransformer, util
 # from memory_profiler import profile
 
 # nlp = None
@@ -12,8 +14,27 @@ from sentence_transformers import SentenceTransformer, util
 # df = None
 # translation_dict = None
 # nlp = spacy.load('de_core_news_sm')
-model = SentenceTransformer('sentence-transformers/all-MiniLM-L6-v2')
+# model = SentenceTransformer('sentence-transformers/all-MiniLM-L6-v2')
 # #print(sys.getsizeof(model))
+def get_similarity(original_sentence, sentence_to_compare):
+    API_URL = "https://api-inference.huggingface.co/models/sentence-transformers/all-MiniLM-L6-v2"
+    headers = {"Authorization": f"Bearer {HUGGING_FACE_API_KEY}"}
+
+    def query(payload):
+        response = requests.post(API_URL, headers=headers, json=payload)
+        return response.json()
+        
+    output = query({
+        "inputs": {
+            "source_sentence": original_sentence,
+            "sentences": [
+                sentence_to_compare,
+                sentence_to_compare
+            ]
+        },
+    })
+    return output
+
 file_name = 'matched_deepl_translations.pkl'
 df = pd.read_pickle(file_name)
 #print(sys.getsizeof(df))
@@ -88,11 +109,12 @@ def check_similarity():
     sentence1 = data["sentence1"]
     sentence2 = data["sentence2"]
     # Compute embedding for both lists
-    embedding_1 = model.encode(sentence1, convert_to_tensor=True)
-    embedding_2 = model.encode(sentence2, convert_to_tensor=True)
+    # embedding_1 = model.encode(sentence1, convert_to_tensor=True)
+    # embedding_2 = model.encode(sentence2, convert_to_tensor=True)
 
-    similarity = util.pytorch_cos_sim(embedding_1, embedding_2)
-    return {"similarity": similarity.item()}
+    # similarity = util.pytorch_cos_sim(embedding_1, embedding_2)
+    result = check_similarity(sentence1, sentence2)
+    return {"similarity": result}
 
 
 @app.route("/api/bookInfo", methods=['GET'])
