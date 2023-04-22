@@ -48,7 +48,6 @@ def index_client():
     entry = os.path.join(os.path.join(dist_dir,'dist'), 'index.html')
     return send_file(entry)
 
-
 @app.route("/api/sentences", methods=['GET'])
 def get_sentence():
     args = request.args
