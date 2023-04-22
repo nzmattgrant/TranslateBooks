@@ -1,25 +1,42 @@
-from sentence_transformers import SentenceTransformer, util
-import spacy
 from flask import Flask, jsonify, request, send_file
 import os
 import pandas as pd
 from flask_cors import CORS
 import pickle
+# import sys
+from sentence_transformers import SentenceTransformer, util
+# from memory_profiler import profile
 
-nlp = spacy.load('de_core_news_sm')
-app = Flask(__name__, static_folder='dist')
-cors = CORS(app)
-app.config['CORS_HEADERS'] = 'Content-Type'
-# load up the semantic similarity
+# nlp = None
+# model = None
+# df = None
+# translation_dict = None
+# nlp = spacy.load('de_core_news_sm')
 model = SentenceTransformer('sentence-transformers/all-MiniLM-L6-v2')
+# #print(sys.getsizeof(model))
 file_name = 'matched_deepl_translations.pkl'
 df = pd.read_pickle(file_name)
+#print(sys.getsizeof(df))
 
 translation_dict = {}
 
 with open("traslation_dict.pkl", "rb") as f:
     translation_dict = pickle.load(f)
 
+#print(sys.getsizeof(nlp))
+app = Flask(__name__, static_folder='dist')
+cors = CORS(app)
+app.config['CORS_HEADERS'] = 'Content-Type'
+# load up the semantic similarity
+
+# # @profile
+# def run_setup():
+
+
+#print(sys.getsizeof(translation_dict))
+# run_setup()
+
+# print("done")
 
 @app.route('/')
 def index_client():
@@ -76,23 +93,6 @@ def check_similarity():
 
     similarity = util.pytorch_cos_sim(embedding_1, embedding_2)
     return {"similarity": similarity.item()}
-
-
-# @app.route("/api/translate", methods=['GET'])
-# def translate():
-#     args = request.args
-#     word = args['word']
-#     print(dictionary.meaning('de', word, dictionary=DICT_EDUCALINGO),
-#           dictionary.translate('de', word))
-#     return jsonify(dictionary.meaning('de', word, dictionary=DICT_EDUCALINGO))
-#     # return list(filter(lambda translation: translation[0] == "en", dictionary.translate('de', word)))[0][1]
-
-
-# @app.route("/api/stem", methods=['GET'])
-# def stem():
-#     args = request.args
-#     word = args['word']
-#     return jsonify(st.stem(word))
 
 
 @app.route("/api/bookInfo", methods=['GET'])
