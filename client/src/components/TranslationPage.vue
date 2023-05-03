@@ -4,7 +4,7 @@
       <div class="header">
         <div class="popper" v-for="(token, id) of displaySentenceTokenized" :key="id">
           <Popper v-if="!!token.word" class="popper-inner">
-            <span>{{ token.word }}&nbsp</span>
+            <span>{{ token.display }}&nbsp;</span>
             <template #content>
               <div class="popover">
                 <div class="popover-header">{{ token.word }} ({{ token.definition?.function }}) translation from <a target="_blank" :href="token.definition?.link">Deepl</a></div>
@@ -12,7 +12,7 @@
               </div>
             </template>
           </Popper>
-          <span v-else>{{ token.word }}&nbsp</span>
+          <!-- <span v-else>{{ token.word }}</span> -->
         </div>
       </div>
       <textarea v-model="textInput"></textarea>

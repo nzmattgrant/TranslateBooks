@@ -62,16 +62,21 @@ def get_sentence2():
     row = german_token_dicts.iloc[line_num]["token_dicts"]
     presentation_sentence_tokens_with_definition = []
     for token_info in row:
-      token = token_info["word"]
-      presentation_sentence_tokens_with_definition.append({
-          "word": token,
-          "lemma": token_info["lemma"],
-          "definition": {
+        token = token_info["word"]
+        if token_info["function"] == "punctuation" and len(presentation_sentence_tokens_with_definition) > 0:
+            presentation_sentence_tokens_with_definition[-1]["display"] += token
+            continue
+        last_token_info = {
+            "word": token,
+            "display": token,
+            "lemma": token_info["lemma"],
+            "definition": {
             "link": f"https://www.deepl.com/translator#de/en/{token}",
             "function": token_info["function"],
             "description": translation_dict[token]
-          }
-      })
+            }
+        }
+        presentation_sentence_tokens_with_definition.append(last_token_info)
     second_sentence = row = df.iloc[:, line_num][1]
 
     return jsonify({
