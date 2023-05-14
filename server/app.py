@@ -101,6 +101,10 @@ def book_info():
        "numberOfSentences": df.shape[1]
    }
 
+@app.route("/api/solution", methods=['GET'])
+def get_solution():
+   return 
+
 @app.route('/<path:path>')
 def static_proxy(path):
     return app.send_static_file(path)
