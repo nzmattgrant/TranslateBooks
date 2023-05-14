@@ -6,7 +6,7 @@
           <Popper v-if="!!token.word" class="popper-inner">
             <span class="token-item">{{ token.display }}&nbsp;</span>
             <template #content>
-              <div class="popover">
+              <div class="custom-popover">
                 <div><span class="popover-header">{{ token.word }} <span class="sentence-part">({{ token.definition?.function }})</span></span> </div>
                 <div class="popover-body">{{ token.definition?.description }}</div>
                 <div class="popover-subheader">Translation from <a target="_blank" :href="token.definition?.link">Deepl</a></div>
@@ -15,11 +15,13 @@
           </Popper>
         </div>
       </div>
-      <textarea class="answer-text-area" v-model="textInput"></textarea>
+      <div class="form-group answer-text-area">
+        <textarea class="form-control" v-model="textInput"></textarea>
+      </div>
       <div class="button-group">
-        <button class="previous" @click="goToPrevious">Previous</button>
-        <button class="submit" @click="submitText">Submit</button>
-        <button class="next" @click="goToNext">Next</button>
+        <button class="btn btn-secondary previous" @click="goToPrevious">Previous</button>
+        <button class="btn btn-secondary submit" @click="submitText">Submit</button>
+        <button class="btn btn-secondary next" @click="goToNext">Next</button>
       </div>
       <div class="feedback">{{ feedbackText }}</div>
     </div>
@@ -27,6 +29,8 @@
 </template>
 
 <script>
+import "bootstrap/dist/css/bootstrap.min.css"
+import "bootstrap"
 import Popper from "vue3-popper";
 import axios from 'axios';
 import { useStorage } from '@vueuse/core';
@@ -178,7 +182,7 @@ textarea {
   --popper-theme-padding: 32px;
   --popper-theme-box-shadow: 0 6px 30px -6px rgba(0, 0, 0, 0.25);
 }
-.popover{
+.custom-popover{
   font-size: 20pt;
 }
 .popover-header {
@@ -205,5 +209,6 @@ textarea {
 
 .answer-text-area{
   font-size: 32px;
+  width: 80%;
 }
 </style>
