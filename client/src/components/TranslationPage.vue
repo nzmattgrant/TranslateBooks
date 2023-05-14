@@ -4,18 +4,18 @@
       <div class="header">
         <div class="popper" v-for="(token, id) of displaySentenceTokenized" :key="id">
           <Popper v-if="!!token.word" class="popper-inner">
-            <span>{{ token.display }}&nbsp;</span>
+            <span class="token-item">{{ token.display }}&nbsp;</span>
             <template #content>
               <div class="popover">
-                <div class="popover-header">{{ token.word }} ({{ token.definition?.function }}) translation from <a target="_blank" :href="token.definition?.link">Deepl</a></div>
+                <div><span class="popover-header">{{ token.word }} <span class="sentence-part">({{ token.definition?.function }})</span></span> </div>
                 <div class="popover-body">{{ token.definition?.description }}</div>
+                <div class="popover-subheader">Translation from <a target="_blank" :href="token.definition?.link">Deepl</a></div>
               </div>
             </template>
           </Popper>
-          <!-- <span v-else>{{ token.word }}</span> -->
         </div>
       </div>
-      <textarea v-model="textInput"></textarea>
+      <textarea class="answer-text-area" v-model="textInput"></textarea>
       <div class="button-group">
         <button class="previous" @click="goToPrevious">Previous</button>
         <button class="submit" @click="submitText">Submit</button>
@@ -184,5 +184,26 @@ textarea {
 .popover-header {
   font-weight: bold;
   margin-bottom: 10px;
+}
+.token-item{
+  cursor: pointer;
+}
+
+.token-item:hover{
+  color: darkblue;
+  text-decoration: underline;
+}
+
+.popover-subheader{
+  font-size: 10pt;
+}
+
+.sentence-part{
+  font-size: 16pt;
+  font-weight: normal;
+}
+
+.answer-text-area{
+  font-size: 32px;
 }
 </style>
