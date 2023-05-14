@@ -10,18 +10,24 @@
                 <div><span class="popover-header">{{ token.word }} <span class="sentence-part">({{ token.definition?.function }})</span></span> </div>
                 <div class="popover-body">{{ token.definition?.description }}</div>
                 <div class="popover-subheader">Translation from <a target="_blank" :href="token.definition?.link">Deepl</a></div>
+                <div class="popover-subheader">For a more detailed definition try <a target="_blank" :href="getLeoLink(token.word)">Leo</a></div>
+                
               </div>
             </template>
           </Popper>
         </div>
       </div>
+      <div v-if="showingAnswer" class="header answer-sentence">
+        <div>{{ toCheckSentence }}</div>
+      </div>
       <div class="form-group answer-text-area">
         <textarea class="form-control" v-model="textInput"></textarea>
       </div>
       <div class="button-group">
-        <button class="btn btn-secondary previous" @click="goToPrevious">Previous</button>
-        <button class="btn btn-secondary submit" @click="submitText">Submit</button>
-        <button class="btn btn-secondary next" @click="goToNext">Next</button>
+        <button v-if="currentIndex !== 0" class="btn btn-primary previous" @click="goToPrevious">Previous</button>
+        <button v-if="!showingAnswer" :class="currentIndex === 0 ? 'submit-long' : 'submit'" class="btn btn-success" @click="submitText">Submit</button>
+        <button v-if="!showingAnswer" class="btn btn-danger reveal" @click="showAnswer">Show</button>
+        <button v-if="showingAnswer" :class="currentIndex === 0 ? 'next-long' : 'next'"  class="btn btn-success " @click="goToNext">Next</button>
       </div>
       <div class="feedback">{{ feedbackText }}</div>
     </div>
@@ -37,7 +43,7 @@ import { useStorage } from '@vueuse/core';
 const storage = useStorage('my-store', { currentSentenceIndex: 0 }, localStorage,
   { mergeDefaults: true });
 
-import { ref, onMounted } from 'vue';
+import { ref, onMounted, computed } from 'vue';
 
 export default {
   setup() {
@@ -51,6 +57,8 @@ export default {
     const toCheckSentence = ref("");
     const numberOfSentences = ref(0);
     const bookTitle = ref("");
+    const showingAnswer = ref(false);
+    const solutionSentence = ref("");
 
     const submitText = async () => {
       const result = await axios.post(`/api/similarity`, { sentence1: toCheckSentence.value, sentence2: textInput.value });
@@ -59,8 +67,18 @@ export default {
       feedbackText.value = `You scored: ${(result.data.similarity * 100).toFixed(2)}%`;
     };
 
+    //write a vue3 computed property to return the value of the current index from storage
+    const currentIndex = computed(() => {
+      return storage.value.currentSentenceIndex;
+    });
+
+    const getLeoLink = (word) => {
+      return `https://dict.leo.org/german-english/${word}`;
+    };
+
     const goToNext = async () => {
       console.log(numberOfSentences.value);
+      showingAnswer.value = false;
       if (storage.value.currentSentenceIndex === numberOfSentences.value - 1) {
         return;
       }
@@ -69,11 +87,17 @@ export default {
     };
 
     const goToPrevious = async () => {
+      showingAnswer.value = false;
       if (storage.value.currentSentenceIndex === 0) {
         return;
       }
       storage.value.currentSentenceIndex = storage.value.currentSentenceIndex - 1;
       fetchSentences();
+    };
+
+    const showAnswer = () => {
+      solutionSentence.value = toCheckSentence.value;
+      showingAnswer.value = true;
     };
 
     const fetchSentences = async () => {
@@ -111,7 +135,12 @@ export default {
       goToPrevious,
       numberOfSentences,
       bookTitle,
-      submitText
+      submitText,
+      showAnswer,
+      currentIndex,
+      solutionSentence,
+      showingAnswer,
+      getLeoLink
     };
   }
 }
@@ -168,8 +197,20 @@ textarea {
   flex: 0 0 76%;
 }
 
-.next {
+.submit-long {
+  flex: 0 0 86%;
+}
+
+.reveal {
   flex: 0 0 10%;
+}
+
+.next {
+  flex: 0 0 86%;
+}
+
+.next-long {
+  flex: 0 0 100%;
 }
 
 :root {
@@ -210,5 +251,9 @@ textarea {
 .answer-text-area{
   font-size: 32px;
   width: 80%;
+}
+
+.answer-sentence{
+  color: midnightblue;
 }
 </style>
