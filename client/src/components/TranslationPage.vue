@@ -11,17 +11,17 @@
                 <div class="popover-body">{{ token.definition?.description }}</div>
                 <div class="popover-subheader">Translation from <a target="_blank" :href="token.definition?.link">Deepl</a></div>
                 <div class="popover-subheader">For a more detailed definition try <a target="_blank" :href="getLeoLink(token.word)">Leo</a></div>
-                
+                 
               </div>
             </template>
           </Popper>
         </div>
       </div>
-      <div v-if="showingAnswer" class="header answer-sentence">
+      <div v-if="showingAnswer" class="header answer-sentence">  
         <div>{{ toCheckSentence }}</div>
       </div>
       <div class="form-group answer-text-area">
-        <textarea class="form-control" v-model="textInput"></textarea>
+        <textarea class="form-control" v-model="textInput"></textarea> 
       </div>
       <div class="button-group">
         <button v-if="currentIndex !== 0" class="btn btn-primary previous" @click="goToPrevious">Previous</button>
@@ -29,7 +29,10 @@
         <button v-if="!showingAnswer" class="btn btn-danger reveal" @click="showAnswer">Show</button>
         <button v-if="showingAnswer" :class="currentIndex === 0 ? 'next-long' : 'next'"  class="btn btn-success " @click="goToNext">Next</button>
       </div>
-      <div class="feedback">{{ feedbackText }}</div>
+      <div class="feedback" v-if="feedbackText">
+          <i v-if="passed" class="bi bi-check-circle-fill"></i>
+          <i v-if="!passed" class="bi bi-x-circle-fill"></i>
+        {{ feedbackText }}</div>
     </div>
   </div>
 </template>
@@ -59,12 +62,14 @@ export default {
     const bookTitle = ref("");
     const showingAnswer = ref(false);
     const solutionSentence = ref("");
+    const passed = ref(false);
 
     const submitText = async () => {
       const result = await axios.post(`/api/similarity`, { sentence1: toCheckSentence.value, sentence2: textInput.value });
       console.log(result);
-
-      feedbackText.value = `You scored: ${(result.data.similarity * 100).toFixed(2)}%`;
+      const percentage = result.data.similarity * 100;
+      passed.value = percentage > 90;
+      feedbackText.value = `You scored: ${(percentage).toFixed(2)}%`;
     };
 
     //write a vue3 computed property to return the value of the current index from storage
@@ -140,7 +145,8 @@ export default {
       currentIndex,
       solutionSentence,
       showingAnswer,
-      getLeoLink
+      getLeoLink,
+      passed
     };
   }
 }
@@ -255,5 +261,13 @@ textarea {
 
 .answer-sentence{
   color: midnightblue;
+}
+
+.bi-check-circle-fill{
+  color: green;
+}
+
+.bi-x-circle-fill{
+  color: red;
 }
 </style>
