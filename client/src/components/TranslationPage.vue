@@ -30,9 +30,8 @@
         <button v-if="showingAnswer" :class="currentIndex === 0 ? 'next-long' : 'next'"  class="btn btn-success " @click="goToNext">Next</button>
       </div>
       <div class="feedback" v-if="feedbackText">
-          <i v-if="passed" class="bi bi-check-circle-fill"></i>
-          <i v-if="!passed" class="bi bi-x-circle-fill"></i>
-        {{ feedbackText }}</div>
+        <span><img  class="feedback-icon" :src='passed ? "/GreenCheck.svg" : "/RedCross.svg"' /></span> {{ feedbackText }}
+      </div>
     </div>
   </div>
 </template>
@@ -70,6 +69,11 @@ export default {
       console.log(result);
       const percentage = result.data.similarity * 100;
       passed.value = percentage > 90;
+      // const isPassed = passed.value;
+      // if(isPassed) {
+      //   showingAnswer.value  = true;
+      // }
+
       feedbackText.value = `You scored: ${(percentage).toFixed(2)}%`;
     };
 
@@ -276,5 +280,18 @@ textarea {
 
 .bi-x-circle-fill{
   color: red;
+}
+
+.feedback{
+  font-size: 34px;
+  padding: 10px;
+}
+.feedback-icon{
+  width: 50px;
+  height: 50px;
+}
+
+.content{
+  font-size: 14px;
 }
 </style>
