@@ -77,9 +77,11 @@ def get_sentence2():
             }
         }
         presentation_sentence_tokens_with_definition.append(last_token_info)
+    first_sentence = row = df.iloc[:, line_num][0]
     second_sentence = row = df.iloc[:, line_num][1]
 
     return jsonify({
+        "sentence": first_sentence,
         "presentation_sentence_tokens": presentation_sentence_tokens_with_definition,
         "translation": second_sentence
     })
