@@ -2,7 +2,7 @@
   <div class="full-page">
     <div class="content">
       <div class="header">
-        <div class="popper" v-for="(token, id) of displaySentenceTokenized" :key="id">
+        <div class="sentence-token" v-for="(token, id) of displaySentenceTokenized" :key="id">
           <Popper v-if="!!token.word" class="popper-inner">
             <span class="token-item">{{ token.display }}&nbsp;</span>
             <template #content>
@@ -11,11 +11,11 @@
                 <div class="popover-body">{{ token.definition?.description }}</div>
                 <div class="popover-subheader">Translation from <a target="_blank" :href="token.definition?.link">Deepl</a></div>
                 <div class="popover-subheader">For a more detailed definition try <a target="_blank" :href="getLeoLink(token.word)">Leo</a></div>
-                 
               </div>
             </template>
           </Popper>
         </div>
+        <div class="sentence-token"><a target="_blank" :href="getDeeplSentenceLink()"><img src='/DeeplLogo.svg' /></a></div>
       </div>
       <div v-if="showingAnswer" class="header answer-sentence">  
         <div>{{ toCheckSentence }}</div>
@@ -57,6 +57,7 @@ export default {
     }]);
     const textInput = ref("");
     const feedbackText = ref("");
+    const originalSentence = ref("");
     const toCheckSentence = ref("");
     const numberOfSentences = ref(0);
     const bookTitle = ref("");
@@ -79,6 +80,10 @@ export default {
 
     const getLeoLink = (word) => {
       return `https://dict.leo.org/german-english/${word}`;
+    };
+
+    const getDeeplSentenceLink = () => {
+      return `https://www.deepl.com/translator#de/en/${originalSentence.value}`;
     };
 
     const goToNext = async () => {
@@ -114,6 +119,7 @@ export default {
         console.log(response.data);
         displaySentenceTokenized.value = response.data.presentation_sentence_tokens;
         toCheckSentence.value = response.data.translation;
+        originalSentence.value = response.data.sentence;
       } catch (error) {
         console.error(error);
       }
@@ -146,14 +152,15 @@ export default {
       solutionSentence,
       showingAnswer,
       getLeoLink,
-      passed
+      passed,
+      getDeeplSentenceLink
     };
   }
 }
 </script>
 
 <style>
-.popper {
+.sentence-token {
   display: inline;
 }
 
