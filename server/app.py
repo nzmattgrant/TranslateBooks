@@ -107,6 +107,16 @@ def book_info():
 def get_solution():
    return 
 
+
+@app.route("/api/books", methods=['GET'])
+def get_books():
+    return [{
+        "title": "Thus spake Tharathustra",
+        "author": "Friedrich Nietzsche",
+        "numberOfSentences": df.shape[1]
+    }]
+
+
 @app.route('/<path:path>')
 def static_proxy(path):
     return app.send_static_file(path)
