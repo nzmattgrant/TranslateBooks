@@ -102,7 +102,8 @@ def book_info():
        "title": "Thus spake Tharathustra",
        "author": "Friedrich Nietzsche",
        "numberOfSentences": df.shape[1],
-       "icon": "https://www.gutenberg.org/cache/epub/1998/pg1998.cover.medium.jpg"
+       "icon": "https://www.gutenberg.org/cache/epub/1998/pg1998.cover.medium.jpg",
+       "slug": "thus-spake-zarathustra"
    }]
 
 @app.route("/api/solution", methods=['GET'])
