@@ -96,25 +96,18 @@ def check_similarity():
     return {"similarity": result[0]}
 
 
-@app.route("/api/bookInfo", methods=['GET'])
+@app.route("/api/books", methods=['GET'])
 def book_info():
-   return {
-       "bookTitle": "Thus spake Tharathustra",
-       "numberOfSentences": df.shape[1]
-   }
+   return [{
+       "title": "Thus spake Tharathustra",
+       "author": "Friedrich Nietzsche",
+       "numberOfSentences": df.shape[1],
+       "icon": "https://www.gutenberg.org/cache/epub/1998/pg1998.cover.medium.jpg"
+   }]
 
 @app.route("/api/solution", methods=['GET'])
 def get_solution():
    return 
-
-
-@app.route("/api/books", methods=['GET'])
-def get_books():
-    return [{
-        "title": "Thus spake Tharathustra",
-        "author": "Friedrich Nietzsche",
-        "numberOfSentences": df.shape[1]
-    }]
 
 
 @app.route('/<path:path>')

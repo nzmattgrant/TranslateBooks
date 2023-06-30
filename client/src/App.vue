@@ -1,12 +1,12 @@
 <script setup lang="ts">
 import { RouterLink, RouterView } from "vue-router";
-import TranslationPage from "./components/TranslationPage.vue";
+import Home from "./components/Home.vue";
 </script>
 
 <template>
   <header>
   </header>
-  <TranslationPage />
+  <Home />
 </template>
 
 <style scoped>
