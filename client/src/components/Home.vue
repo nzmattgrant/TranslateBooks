@@ -1,8 +1,8 @@
 <template>
     <div v-for="book of books">
       <title>{{ book.title }}</title>
-      <img :src="book.icon" />
-      <span>{{ book.percentage }}%</span>
+      <RouterLink to="/translate"><img :src="book.icon" /></RouterLink>
+      <div>{{ book.percentage }}%</div>
     </div>
   </template>
   
