@@ -20,6 +20,11 @@
   export default {
     setup() {
     const books = ref([]);
+
+    const getBookInfos = async () => {
+        const result = await axios.get(`/api/books`);
+        return result.data;
+    };
   
     onMounted(async () => {
         books.value = await getBookInfos();
