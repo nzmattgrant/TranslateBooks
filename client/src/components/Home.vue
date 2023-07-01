@@ -3,6 +3,7 @@
     <div class="row">
       <div class="book-item" v-for="book of books">
         <h2>{{ book.title }}</h2>
+        <h4 class="author">{{ book.author }}</h4>
         <div>
           <RouterLink to="/translate"><img class="book-image" :src="`/covers/${book.slug}.jpg`" /></RouterLink>
         </div>
@@ -59,6 +60,10 @@ export default {
   flex-flow: row wrap;
   justify-content: flex-start;
 
+}
+
+.author{
+  color: gray
 }
 
 .books-panel {
