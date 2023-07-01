@@ -34,7 +34,15 @@ export default {
     };
 
     onMounted(async () => {
-      books.value = await getBookInfos();
+      const bookInfos = await getBookInfos();
+      bookInfos.forEach(bookInfo => {
+        //temporary
+        bookInfo.percentage = 0;
+        if (bookInfo.slug === "thus-spake-zarathustra") {
+          bookInfo.percentage = ((storage.value.currentSentenceIndex + 1)/bookInfo.numberOfSentences) * 100;
+        }
+      });
+      books.value = bookInfos;
     })
     return {
       books
@@ -208,4 +216,5 @@ textarea {
 
 .content {
   font-size: 14px;
-}</style>
+}
+</style>
