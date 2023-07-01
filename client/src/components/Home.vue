@@ -1,9 +1,14 @@
 <template>
-    <div v-for="book of books">
-      <title>{{ book.title }}</title>
-      <RouterLink to="/translate"><img :src="book.icon" /></RouterLink>
+  <div class="books-panel">
+    <div class="row">
+    <div class="book-item" v-for="book of books">
+      <h2>{{ book.title }}</h2>
+      <div ><RouterLink to="/translate"><img class="book-image" :src="`/covers/${book.slug}.jpg`" /></RouterLink></div>
+      
       <div>{{ book.percentage }}%</div>
     </div>
+    </div>
+      </div>
   </template>
   
   <script>
@@ -39,6 +44,32 @@
 
 
   <style>
+  .row{
+  display: flex;
+  flex-flow: row wrap;
+  justify-content: flex-start;
+
+  }
+.books-panel {
+  display: flex;
+  justify-content: center;
+  padding: 50px;;
+}
+
+.book-item {
+    height: 550px;
+  flex-basis: 20%;
+  -ms-flex: auto;
+  width: 259px;
+  position: relative;
+  padding: 20px;
+  box-sizing: border-box;
+} 
+  .book-image{
+    max-width: 200px;
+    max-height: 300px;
+  }
+
   .sentence-token {
     display: inline;
   }
