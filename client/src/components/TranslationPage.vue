@@ -2,6 +2,8 @@
   <div class="full-page">
     <div class="content">
       <div class="header">
+        <div>Sentence number: {{ currentIndex + 1 }}</div>
+        <div>Percentage passed: {{ percentagePassed }}%</div>
         <div class="sentence-token" v-for="(token, id) of displaySentenceTokenized" :key="id">
           <Popper v-if="!!token.word" class="popper-inner">
             <span class="token-item">{{ token.display }}&nbsp;</span>
@@ -42,7 +44,7 @@ import "bootstrap"
 import Popper from "vue3-popper";
 import axios from 'axios';
 import { useStorage } from '@vueuse/core';
-const storage = useStorage('my-store', { currentSentenceIndex: 0 }, localStorage,
+const storage = useStorage('my-store', { currentSentenceIndex: 0, passedIndexes: [] }, localStorage,
   { mergeDefaults: true });
 
 import { ref, onMounted, computed } from 'vue';
@@ -63,16 +65,20 @@ export default {
     const showingAnswer = ref(false);
     const solutionSentence = ref("");
     const passed = ref(false);
+    const percentagePassed = ref(0);
 
     const submitText = async () => {
       const result = await axios.post(`/api/similarity`, { sentence1: toCheckSentence.value, sentence2: textInput.value });
       console.log(result);
       const percentage = result.data.similarity * 100;
       passed.value = percentage > 90;
-      // const isPassed = passed.value;
-      // if(isPassed) {
-      //   showingAnswer.value  = true;
-      // }
+      const isPassed = passed.value;
+      if(isPassed) {
+        showingAnswer.value  = true;
+        storage.value.passedIndexes.push(storage.value.currentSentenceIndex);
+        percentagePassed.value = (storage.value.passedIndexes.length / numberOfSentences.value) * 100;
+        console.log(percentagePassed.value, storage.value.passedIndexes.length, numberOfSentences.value);
+      }
 
       feedbackText.value = `You scored: ${(percentage).toFixed(2)}%`;
     };
@@ -130,9 +136,9 @@ export default {
     };
 
     const getBookInfo = async () => {
-      const result = await axios.get(`/api/bookInfo`);//todo allow more than one book
-      bookTitle.value = result.data["bookTitle"];
-      numberOfSentences.value = result.data["numberOfSentences"];
+      const result = await axios.get(`/api/books`);//todo allow more than one book
+      bookTitle.value = result.data[0]["bookTitle"];
+      numberOfSentences.value = result.data[0]["numberOfSentences"];
     }
 
     onMounted(() => {
@@ -157,7 +163,8 @@ export default {
       showingAnswer,
       getLeoLink,
       passed,
-      getDeeplSentenceLink
+      getDeeplSentenceLink,
+      percentagePassed,
     };
   }
 }
@@ -188,10 +195,10 @@ export default {
   width: 80%;
 }
 
-textarea {
+textarea.form-control {
   height: 200px;
-  width: 80%;
   margin-bottom: 20px;
+  font-size: 40px;
 }
 
 .button-group {
