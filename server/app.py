@@ -5,6 +5,7 @@ from flask_cors import CORS
 import pickle
 import requests
 from configuration import HUGGING_FACE_API_KEY
+import difflib
 
 def calculate_similarity(original_sentence, sentence_to_compare):
     API_URL = "https://api-inference.huggingface.co/models/sentence-transformers/all-MiniLM-L6-v2"
@@ -92,8 +93,9 @@ def check_similarity():
     sentence1 = data["sentence1"]
     sentence2 = data["sentence2"]
     result = calculate_similarity(sentence1, sentence2)
+    diff = difflib.ndiff(sentence1, sentence2)
     print(result)
-    return {"similarity": result[0]}
+    return {"similarity": result[0], "diff": list(diff) }
 
 
 @app.route("/api/books", methods=['GET'])
