@@ -20,7 +20,7 @@
         <div class="sentence-token"><a target="_blank" :href="getDeeplSentenceLink()"><img src='/DeeplLogo.svg' /></a></div>
       </div>
       <div v-if="showingAnswer" class="header answer-sentence">  
-        <div>{{ toCheckSentence }}</div>
+          <div v-html="getDiffHtml()"></div>
       </div>
       <div class="form-group answer-text-area">
         <textarea class="form-control" v-model="textInput"></textarea> 
@@ -66,10 +66,14 @@ export default {
     const solutionSentence = ref("");
     const passed = ref(false);
     const numberPassed = ref(0);
+    const diff = ref([]);
+
+
 
     const submitText = async () => {
       const result = await axios.post(`/api/similarity`, { sentence1: toCheckSentence.value, sentence2: textInput.value });
       console.log(result);
+      diff.value = result.data.diff;
       const percentage = result.data.similarity * 100;
       passed.value = percentage > 90;
       const isPassed = passed.value;
@@ -82,6 +86,45 @@ export default {
 
       feedbackText.value = `You scored: ${(percentage).toFixed(2)}%`;
     };
+
+    const getDiffHtml = () => {
+      return diff.value.map(token => {
+        console.log(token);
+        const className = "diff ";
+        if (token.startsWith("+")) {
+          return "";
+        }
+        if(token.startsWith("-")) {
+          return `<span class="${className}red">${token.substring(1).trim()}</span>`;
+        }
+        if(token.trim().length === 0) {
+          return "&nbsp;";
+        }
+        return `<span class="${className}green">${token.trim()}</span>`;
+      }).join("");
+    };
+
+    const getDiffClass = (token) => {
+      const className = "diff ";
+      if (token.startsWith("+")) {
+        return className + "yellow";
+      }
+      if(token.startsWith("-")) {
+        return className + "red";
+      }
+      return className + "green";
+    };
+
+    const getDiffToken = (baseToken) => {
+      if (baseToken.startsWith("+") || baseToken.startsWith("-")) {
+        return baseToken.substring(1);
+      }
+      if(baseToken == " ") {
+        //return the html space character
+        return "&nbsp;";
+      }
+      return baseToken; 
+    }
 
     //write a vue3 computed property to return the value of the current index from storage
     const currentIndex = computed(() => {
@@ -165,6 +208,10 @@ export default {
       passed,
       getDeeplSentenceLink,
       numberPassed,
+      diff,
+      getDiffClass,
+      getDiffToken,
+      getDiffHtml,
     };
   }
 }
@@ -300,5 +347,20 @@ textarea.form-control {
 
 .content{
   font-size: 14px;
+}
+.green{
+  color: green;
+}
+.red{
+  color: red;
+}
+.yellow{
+  color: yellow;
+}
+.diff{
+  width: min-content;
+  padding: 0%;
+  margin: 0%;
+  white-space: normal;
 }
 </style>
