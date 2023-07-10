@@ -2,8 +2,8 @@
   <div class="full-page">
     <div class="content">
       <div class="header">
-        <div>Sentence number: {{ currentIndex + 1 }}</div>
-        <div>Percentage passed: {{ percentagePassed }}%</div>
+        <div>Book progress: {{ currentIndex + 1 }}/{{ numberOfSentences }}</div>
+        <div>Correct sentences: {{ numberPassed }}/{{ numberOfSentences }}</div>
         <div class="sentence-token" v-for="(token, id) of displaySentenceTokenized" :key="id">
           <Popper v-if="!!token.word" class="popper-inner">
             <span class="token-item">{{ token.display }}&nbsp;</span>
@@ -65,7 +65,7 @@ export default {
     const showingAnswer = ref(false);
     const solutionSentence = ref("");
     const passed = ref(false);
-    const percentagePassed = ref(0);
+    const numberPassed = ref(0);
 
     const submitText = async () => {
       const result = await axios.post(`/api/similarity`, { sentence1: toCheckSentence.value, sentence2: textInput.value });
@@ -76,8 +76,8 @@ export default {
       if(isPassed) {
         showingAnswer.value  = true;
         storage.value.passedIndexes.push(storage.value.currentSentenceIndex);
-        percentagePassed.value = (storage.value.passedIndexes.length / numberOfSentences.value) * 100;
-        console.log(percentagePassed.value, storage.value.passedIndexes.length, numberOfSentences.value);
+        numberPassed.value = storage.value.passedIndexes.length;
+        console.log(numberPassed.value, storage.value.passedIndexes.length, numberOfSentences.value);
       }
 
       feedbackText.value = `You scored: ${(percentage).toFixed(2)}%`;
@@ -164,7 +164,7 @@ export default {
       getLeoLink,
       passed,
       getDeeplSentenceLink,
-      percentagePassed,
+      numberPassed,
     };
   }
 }
