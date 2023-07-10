@@ -363,4 +363,7 @@ textarea.form-control {
   margin: 0%;
   white-space: normal;
 }
+.answer-sentence{
+  width: 80%;
+}
 </style>
