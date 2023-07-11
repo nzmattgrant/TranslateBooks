@@ -75,7 +75,7 @@ export default {
       console.log(result);
       diff.value = result.data.diff;
       const percentage = result.data.similarity * 100;
-      passed.value = percentage > 90;
+      passed.value = percentage > 85;
       const isPassed = passed.value;
       if(isPassed) {
         showingAnswer.value  = true;
@@ -88,7 +88,7 @@ export default {
     };
 
     const getDiffHtml = () => {
-      return diff.value.map(token => {
+      return "<span class='diif-word'>" + diff.value.map(token => {
         console.log(token);
         const className = "diff ";
         if (token.startsWith("+")) {
@@ -98,10 +98,10 @@ export default {
           return `<span class="${className}red">${token.substring(1).trim()}</span>`;
         }
         if(token.trim().length === 0) {
-          return "&nbsp;";
+          return "</span> <span class='diif-word'>";
         }
         return `<span class="${className}green">${token.trim()}</span>`;
-      }).join("");
+      }).join("") + "</span>";
     };
 
     const getDiffClass = (token) => {
