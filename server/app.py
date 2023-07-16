@@ -26,8 +26,8 @@ def calculate_similarity(original_sentence, sentence_to_compare):
     })
     return output
 
-file_name = 'matched_deepl_translations.pkl'
-df = pd.read_pickle(file_name)
+file_name = 'matched_deepl_translations_multiple_books.pkl'
+matched_translations = pd.read_pickle(file_name)
 
 translation_dict = {}
 
@@ -52,13 +52,15 @@ def index_client():
 @app.route("/api/sentences", methods=['GET'])
 def get_sentence():
     args = request.args
+    book_id = int(args['id'])
     line_num = int(args['lineNumber'])
-    row = df.iloc[:, line_num]
-    return [row.iloc[0], row.iloc[1]]
+    row = matched_translations[book_id][line_num]
+    return [row["german_sentence"], row.iloc["english_machine_translation"]]
 
 @app.route("/api/sentences2", methods=['GET'])
 def get_sentence2():
     args = request.args
+    book_id = int(args['id'])-1#zero indexed
     line_num = int(args['lineNumber'])
     row = german_token_dicts.iloc[line_num]["token_dicts"]
     presentation_sentence_tokens_with_definition = []
@@ -78,8 +80,8 @@ def get_sentence2():
             }
         }
         presentation_sentence_tokens_with_definition.append(last_token_info)
-    first_sentence = row = df.iloc[:, line_num][0]
-    second_sentence = row = df.iloc[:, line_num][1]
+    first_sentence = row = matched_translations[book_id][line_num]["german_sentence"]
+    second_sentence = row = matched_translations[book_id][line_num]["english_machine_translation"]
 
     return jsonify({
         "sentence": first_sentence,
@@ -104,7 +106,7 @@ def book_info():
        "id": 1,
        "title": "Thus spake Zarathustra",
        "author": "Friedrich Nietzsche",
-       "numberOfSentences": df.shape[1],   
+       "numberOfSentences": len(matched_translations[0]),   
        "slug": "thus-spake-zarathustra"
    },
    {

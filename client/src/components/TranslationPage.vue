@@ -172,7 +172,7 @@ export default {
         textInput.value = "";
         feedbackText.value = "";
         console.log(storage.value.currentSentenceIndex, storage);
-        const response = await axios.get(`/api/sentences2?lineNumber=${storage.value.currentSentenceIndex}`);
+        const response = await axios.get(`/api/sentences2?id=${route.params.id}&lineNumber=${storage.value.currentSentenceIndex}`);
         console.log(response.data);
         displaySentenceTokenized.value = response.data.presentation_sentence_tokens;
         toCheckSentence.value = response.data.translation;
