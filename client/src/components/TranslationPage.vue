@@ -44,6 +44,7 @@ import "bootstrap"
 import Popper from "vue3-popper";
 import axios from 'axios';
 import { useStorage } from '@vueuse/core';
+import { useRoute } from 'vue-router'
 const storage = useStorage('my-store', { currentSentenceIndex: 0, passedIndexes: [] }, localStorage,
   { mergeDefaults: true });
 
@@ -51,6 +52,9 @@ import { ref, onMounted, computed } from 'vue';
 
 export default {
   setup() {
+
+    const route = useRoute();
+    console.log("id", route.params.id);
     const displaySentenceTokenized = ref([{
       "definition": null,
       "lemma": null,

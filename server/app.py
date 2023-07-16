@@ -101,18 +101,21 @@ def check_similarity():
 @app.route("/api/books", methods=['GET'])
 def book_info():
    return [{
+       "id": 1,
        "title": "Thus spake Zarathustra",
        "author": "Friedrich Nietzsche",
        "numberOfSentences": df.shape[1],   
        "slug": "thus-spake-zarathustra"
    },
    {
+       "id": 2,
        "title": "Hansel and Gretel",
        "author": "The Brothers Grimm",
        "numberOfSentences": 0,
        "slug": "hansel-and-gretel"
    },
    {
+       "id": 3,
        "title": "Snow White",
        "author": "The Brothers Grimm",
        "numberOfSentences": 0,

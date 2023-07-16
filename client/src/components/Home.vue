@@ -5,7 +5,7 @@
         <h2>{{ book.title }}</h2>
         <h4 class="author">{{ book.author }}</h4>
         <div>
-          <RouterLink to="/translate"><img class="book-image" :src="`/covers/${book.slug}.jpg`" /></RouterLink>
+          <RouterLink :to="`/translate/${book.id}`"><img class="book-image" :src="`/covers/${book.slug}.jpg`" /></RouterLink>
         </div>
 
         <div>{{ book.percentage }}%</div>
