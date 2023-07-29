@@ -2,9 +2,9 @@
   <div class="books-panel">
     <div class="row">
       <div class="book-item" v-for="book of books">
-        <h2>{{ book.title }}</h2>
+        <h2 class="book-title">{{ book.title }}</h2>
         <h4 class="author">{{ book.author }}</h4>
-        <div>
+        <div class="book-image">
           <RouterLink :to="`/translate/${book.id}`"><img class="book-image" :src="`/covers/${book.slug}.jpg`" /></RouterLink>
         </div>
 
@@ -39,7 +39,7 @@ export default {
       bookInfos.forEach(bookInfo => {
         //temporary
         bookInfo.percentage = 0;
-        if (bookInfo.slug === "thus-spake-zarathustra") {
+        if (bookInfo.slug === "the-metamorphosis") {
           bookInfo.percentage = ((storage.value.currentSentenceIndex + 1)/bookInfo.numberOfSentences) * 100;
         }
       });
@@ -55,6 +55,10 @@ export default {
 
 
 <style>
+.book-title {
+  height: 80px;
+}
+
 .row {
   display: flex;
   flex-flow: row wrap;
@@ -63,10 +67,12 @@ export default {
 }
 
 .author{
-  color: gray
+  color: gray;
+  height: 60px;
 }
 
 .books-panel {
+  align-items: center;
   display: flex;
   justify-content: center;
   padding: 50px;
@@ -77,10 +83,13 @@ export default {
   height: 550px;
   flex-basis: 20%;
   -ms-flex: auto;
-  width: 259px;
+  width: 300px;
   position: relative;
-  padding: 20px;
+  padding: 40px;
   box-sizing: border-box;
+  border-radius: 25px;
+  border: 2px solid gray;
+  margin: 10px;
 }
 
 .book-image {
