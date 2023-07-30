@@ -1,14 +1,17 @@
 <template>
-  <div class="books-panel">
-    <div class="row">
-      <div class="book-item" v-for="book of books">
-        <h2 class="book-title">{{ book.title }}</h2>
-        <h4 class="author">{{ book.author }}</h4>
-        <div class="book-image">
-          <RouterLink :to="`/translate/${book.id}`"><img class="book-image" :src="`/covers/${book.slug}.jpg`" /></RouterLink>
-        </div>
+  <div class="panel-container">
+    <div class="books-panel">
+      <div class="row">
+        <div class="book-item" v-for="book of books">
+          <h2 class="book-title">{{ book.title }}</h2>
+          <h4 class="author">{{ book.author }}</h4>
+          <div class="book-image">
+            <RouterLink :to="`/translate/${book.id}`"><img class="book-image" :src="`/covers/${book.slug}.jpg`" />
+            </RouterLink>
+          </div>
 
-        <div>{{ book.percentage }}%</div>
+          <div>{{ book.percentage }}%</div>
+        </div>
       </div>
     </div>
   </div>
@@ -40,7 +43,7 @@ export default {
         //temporary
         bookInfo.percentage = 0;
         if (bookInfo.slug === "the-metamorphosis") {
-          bookInfo.percentage = ((storage.value.currentSentenceIndex + 1)/bookInfo.numberOfSentences) * 100;
+          bookInfo.percentage = ((storage.value.currentSentenceIndex + 1) / bookInfo.numberOfSentences) * 100;
         }
       });
       books.value = bookInfos;
@@ -55,6 +58,10 @@ export default {
 
 
 <style>
+.panel-container {
+  margin: auto;
+}
+
 .book-title {
   height: 80px;
 }
@@ -62,17 +69,16 @@ export default {
 .row {
   display: flex;
   flex-flow: row wrap;
-  justify-content: flex-start;
+  justify-content: center;
 
 }
 
-.author{
+.author {
   color: gray;
   height: 60px;
 }
 
 .books-panel {
-  align-items: center;
   display: flex;
   justify-content: center;
   padding: 50px;
