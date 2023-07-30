@@ -1,6 +1,6 @@
 import nltk
 nltk.download('punkt')
-from nltk.tokenize import sent_tokenize, word_tokenize
+from nltk.tokenize import sent_tokenize
 
 def process_file(file_name):
     with open(file_name, "r", encoding='utf-8-sig') as file:

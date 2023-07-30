@@ -8,7 +8,6 @@ import spacy_transformers
 nlp = spacy.load('de_dep_news_trf')
 
 file1_sentences = process_file("/content/drive/MyDrive/Metamorphosis German.txt")
-file2_sentences = process_file("/content/drive/MyDrive/Metamorphosis English.txt")
 
 url = 'https://api-free.deepl.com/v2/translate'
 auth_key = DEEPL_API_KEY
@@ -31,7 +30,7 @@ for sentence in file1_sentences:
   tokens = nlp(sentence)
   for token in tokens:
     if token.is_punct or token.text in dict:
-      #print("word already in dict or is puctuation", token.text)
+      #word already in dict or is puctuation
       continue
     print("adding new word", token.text)
     try:
