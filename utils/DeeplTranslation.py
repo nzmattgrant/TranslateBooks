@@ -1,7 +1,14 @@
-import pandas
 import requests
 import pickle
 from Configuration import DEEPL_API_KEY
+from HumanTranslationMatching import process_file
+import spacy
+import spacy_transformers
+
+nlp = spacy.load('de_dep_news_trf')
+
+file1_sentences = process_file("/content/drive/MyDrive/Metamorphosis German.txt")
+file2_sentences = process_file("/content/drive/MyDrive/Metamorphosis English.txt")
 
 url = 'https://api-free.deepl.com/v2/translate'
 auth_key = DEEPL_API_KEY
