@@ -10,7 +10,7 @@ nlp = spacy.load('de_dep_news_trf')
 
 def update_deepl_translation_dict_from_file(filename):
     translation_dict = {}
-    translation_dict_path = "traslation_dict.pkl"
+    translation_dict_path = "translation_dict.pkl"
     if os.path.isfile(translation_dict_path):
         with open(translation_dict_path, "rb") as f:
             translation_dict = pickle.load(f)[0]
@@ -53,7 +53,7 @@ def update_deepl_translation_dict_from_file(filename):
                 print("exception occured", e)
                 continue
 
-    with open("traslation_dict.pkl", "wb") as f:
+    with open(translation_dict_path, "wb") as f:
         pickle.dump(translation_dict, f)
 
 update_deepl_translation_dict_from_file("Hänsel und Gretel.txt")
