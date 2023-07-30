@@ -1,9 +1,10 @@
 import pandas
 import requests
 import pickle
+from Configuration import DEEPL_API_KEY
 
 url = 'https://api-free.deepl.com/v2/translate'
-auth_key = 'b73a5d37-53f6-44dd-b44d-de6666e35e8d:fx'
+auth_key = DEEPL_API_KEY
 target_lang = 'EN'
 source_lang = 'DE'
 
