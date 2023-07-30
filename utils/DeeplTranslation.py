@@ -32,8 +32,6 @@ def update_deepl_translation_dict_from_file(filename):
         'Authorization': 'DeepL-Auth-Key ' + auth_key,
     }
 
-    translated_texts = []
-
     for sentence in sentences:
         tokens = nlp(sentence)
         for token in tokens:
