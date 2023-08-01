@@ -4,6 +4,7 @@ from Configuration import DEEPL_API_KEY
 import spacy
 import os
 from Shared import process_file
+from collections import ChainMap
 
 nlp = spacy.load('de_dep_news_trf')
 
@@ -86,3 +87,15 @@ def translate_with_dictionary_update(book_index, german_text_filename):
 
 # translate_with_dictionary_update(1, "Hänsel und Gretel.txt")
 # translate_with_dictionary_update(2, "Schneewittchen.txt")
+
+# matched_sentences_file_path_old = "matched_deepl_translations_multiple_books_old.pkl"
+# matched_sentences_file_path = "matched_deepl_translations_multiple_books.pkl"
+# with open(matched_sentences_file_path_old, "rb") as f:
+#     translated_texts_old = pickle.load(f)
+# with open(matched_sentences_file_path, "rb") as f:
+#     translated_texts = pickle.load(f)
+# arr = [v for k, v in translated_texts_old[0].items()]
+# translated_texts[0] = arr
+# with open(matched_sentences_file_path, "wb") as f:
+#     pickle.dump(translated_texts, f)
+
