@@ -86,7 +86,7 @@ export default {
     const showingAnswer = ref(false);
     const solutionSentence = ref("");
     const passed = ref(false);
-    const numberPassed = ref(0);
+    const numberPassed = ref(bookInfos[id].passedIndexes.length);
     const diff = ref([]);
 
 
