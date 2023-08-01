@@ -4,7 +4,6 @@ from Configuration import DEEPL_API_KEY
 import spacy
 import os
 from Shared import process_file
-from collections import ChainMap
 
 nlp = spacy.load('de_dep_news_trf')
 
@@ -80,22 +79,33 @@ def translate_german_sentence_to_english(book_index, german_sentences):
         pickle.dump(translated_texts, f)
     return translated_texts
 
+def generate_token_information(book_index, german_sentences):
+    tokenized_sentences_german = {book_index: []}
+    token_dict_filename = "german_token_dicts.pkl"
+    if os.path.isfile(token_dict_filename):
+        with open(token_dict_filename, "rb") as f:
+            tokenized_sentences_german = pickle.load(f)
+        tokenized_sentences_german[book_index] = []
+    for german_sentence in german_sentences:
+        transformation = nlp(german_sentence)
+        token_dicts = []
+        for token in transformation:
+            token_dict = {
+                "word": str(token),
+                "lemma":  str(token.lemma_),
+                "function": spacy.explain(token.pos_)
+            }
+            token_dicts.append(token_dict)
+        tokenized_sentences_german[book_index].append(token_dicts)
+    with open(token_dict_filename, "wb") as f:
+        pickle.dump(tokenized_sentences_german, f)
+
 def translate_with_dictionary_update(book_index, german_text_filename):
     german_sentences = process_file(german_text_filename)
-    translate_german_sentence_to_english(book_index, german_sentences)
-    update_deepl_translation_dict_from_file(german_sentences)
+    #translate_german_sentence_to_english(book_index, german_sentences)
+    generate_token_information(book_index, german_sentences)
+    #update_deepl_translation_dict_from_file(german_sentences)
 
-# translate_with_dictionary_update(1, "Hänsel und Gretel.txt")
-# translate_with_dictionary_update(2, "Schneewittchen.txt")
-
-# matched_sentences_file_path_old = "matched_deepl_translations_multiple_books_old.pkl"
-# matched_sentences_file_path = "matched_deepl_translations_multiple_books.pkl"
-# with open(matched_sentences_file_path_old, "rb") as f:
-#     translated_texts_old = pickle.load(f)
-# with open(matched_sentences_file_path, "rb") as f:
-#     translated_texts = pickle.load(f)
-# arr = [v for k, v in translated_texts_old[0].items()]
-# translated_texts[0] = arr
-# with open(matched_sentences_file_path, "wb") as f:
-#     pickle.dump(translated_texts, f)
-
+translate_with_dictionary_update(0, "Metamorphosis German.txt")
+translate_with_dictionary_update(1, "Hänsel und Gretel.txt")
+translate_with_dictionary_update(2, "Schneewittchen.txt")

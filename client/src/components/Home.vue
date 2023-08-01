@@ -42,9 +42,9 @@ export default {
       bookInfos.forEach(bookInfo => {
         //temporary
         bookInfo.percentage = 0;
-        if (bookInfo.slug === "the-metamorphosis") {
-          bookInfo.percentage = ((storage.value.currentSentenceIndex + 1) / bookInfo.numberOfSentences) * 100;
-        }
+        //if (bookInfo.slug === "the-metamorphosis") {
+        bookInfo.percentage = ((storage.value.currentSentenceIndex + 1) / bookInfo.numberOfSentences) * 100;
+        //}
       });
       books.value = bookInfos;
     })

@@ -33,7 +33,7 @@ matched_translations = pd.read_pickle(file_name)
 
 translation_dict = {}
 
-with open("traslation_dict.pkl", "rb") as f:
+with open("translation_dict.pkl", "rb") as f:
     translation_dict = pickle.load(f)
 
 german_token_dicts = {}
@@ -54,21 +54,13 @@ def index_client():
 
 
 @app.route("/api/sentences", methods=['GET'])
-def get_sentence():
-    args = request.args
-    book_id = int(args['id'])
-    line_num = int(args['lineNumber'])
-    row = matched_translations[book_id][line_num]
-    return [row["german_sentence"], row.iloc["english_machine_translation"]]
-
-
-@app.route("/api/sentences2", methods=['GET'])
 def get_sentence2():
     args = request.args
     book_id = int(args['id'])-1  # zero indexed
     line_num = int(args['lineNumber'])
-    row = german_token_dicts.iloc[line_num]["token_dicts"]
+    row = german_token_dicts[book_id][line_num]
     presentation_sentence_tokens_with_definition = []
+    print(translation_dict)
     for token_info in row:
         token = token_info["word"]
         if token_info["function"] == "punctuation" and len(presentation_sentence_tokens_with_definition) > 0:
@@ -120,23 +112,24 @@ def book_info():
        "id": 2,
        "title": "Hansel and Gretel",
        "author": "The Brothers Grimm",
-       "numberOfSentences": 0,
+       "numberOfSentences": len(matched_translations[1]),
        "slug": "hansel-and-gretel"
     },
     {
        "id": 3,
        "title": "Snow White",
        "author": "The Brothers Grimm",
-       "numberOfSentences": 0,
+       "numberOfSentences": len(matched_translations[2]),
        "slug": "snow-white"
     },
-    {
-       "id": 4,
-       "title": "Thus spake Zarathustra",
-       "author": "Friedrich Nietzsche",
-       "numberOfSentences": 0,
-       "slug": "thus-spake-zarathustra"
-    }]
+    # {
+    #    "id": 4,
+    #    "title": "Thus spake Zarathustra",
+    #    "author": "Friedrich Nietzsche",
+    #    "numberOfSentences": 0,
+    #    "slug": "thus-spake-zarathustra"
+    # }
+    ]
 
 
 @app.route("/api/solution", methods=['GET'])

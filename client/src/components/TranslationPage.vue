@@ -172,7 +172,7 @@ export default {
         textInput.value = "";
         feedbackText.value = "";
         console.log(storage.value.currentSentenceIndex, storage);
-        const response = await axios.get(`/api/sentences2?id=${route.params.id}&lineNumber=${storage.value.currentSentenceIndex}`);
+        const response = await axios.get(`/api/sentences?id=${route.params.id}&lineNumber=${storage.value.currentSentenceIndex}`);
         console.log(response.data);
         displaySentenceTokenized.value = response.data.presentation_sentence_tokens;
         toCheckSentence.value = response.data.translation;
@@ -183,9 +183,9 @@ export default {
     };
 
     const getBookInfo = async () => {
-      const result = await axios.get(`/api/books`);//todo allow more than one book
-      bookTitle.value = result.data[0]["bookTitle"];
-      numberOfSentences.value = result.data[0]["numberOfSentences"];
+      const result = await axios.get(`/api/books`);
+      bookTitle.value = result.data[route.params.id]["bookTitle"];
+      numberOfSentences.value = result.data[route.params.id]["numberOfSentences"];
     }
 
     onMounted(() => {
