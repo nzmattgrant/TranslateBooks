@@ -55,7 +55,7 @@ import Popper from "vue3-popper";
 import axios from 'axios';
 import { useStorage } from '@vueuse/core';
 import { useRoute } from 'vue-router'
-const storage = useStorage('my-store', { currentSentenceIndex: 0, passedIndexes: [] }, localStorage,
+const storage = useStorage('my-store', { bookInformation: [ { currentSentenceIndex: 0, passedIndexes: [] } ] }, localStorage,
   { mergeDefaults: true });
 
 import { ref, onMounted, computed } from 'vue';
@@ -64,7 +64,14 @@ export default {
   setup() {
 
     const route = useRoute();
-    console.log("id", route.params.id);
+    const id = Number(route.params.id);
+    console.log("id", id);
+    let bookInfos = storage.value.bookInformation;
+    if(bookInfos.length <= id) {
+      const difference = (id + 1) - bookInfos.length;
+      bookInfos = bookInfos.concat(Array(difference).fill({ currentSentenceIndex: 0, passedIndexes: [] }));
+    }
+    storage.value.bookInformation = bookInfos;
     const displaySentenceTokenized = ref([{
       "definition": null,
       "lemma": null,
@@ -94,9 +101,14 @@ export default {
       const isPassed = passed.value;
       if (isPassed) {
         showingAnswer.value = true;
-        storage.value.passedIndexes.push(storage.value.currentSentenceIndex);
-        numberPassed.value = storage.value.passedIndexes.length;
-        console.log(numberPassed.value, storage.value.passedIndexes.length, numberOfSentences.value);
+        const bookInfo = storage.value.bookInformation[id];
+        let passedIndexes = bookInfo.passedIndexes;
+        passedIndexes.push(bookInfo.currentSentenceIndex);
+        passedIndexes = [...new Set(passedIndexes)];
+        bookInfo.passedIndexes = passedIndexes;
+        storage.value.bookInformation[id] = bookInfo;
+        console.log("passedIndexes", passedIndexes);
+        numberPassed.value = passedIndexes.length;
       }
 
       feedbackText.value = `You scored: ${(percentage).toFixed(2)}%`;
@@ -104,7 +116,6 @@ export default {
 
     const getDiffHtml = () => {
       return "<span class='diif-word'>" + diff.value.map(token => {
-        console.log(token);
         const className = "diff ";
         if (token.startsWith("+")) {
           return "";
@@ -143,7 +154,7 @@ export default {
 
     //write a vue3 computed property to return the value of the current index from storage
     const currentIndex = computed(() => {
-      return storage.value.currentSentenceIndex;
+      return storage.value.bookInformation[id].currentSentenceIndex;
     });
 
     const getLeoLink = (word) => {
@@ -157,19 +168,19 @@ export default {
     const goToNext = async () => {
       console.log(numberOfSentences.value);
       showingAnswer.value = false;
-      if (storage.value.currentSentenceIndex === numberOfSentences.value - 1) {
+      if (storage.value.bookInformation[id].currentSentenceIndex === numberOfSentences.value - 1) {
         return;
       }
-      storage.value.currentSentenceIndex = storage.value.currentSentenceIndex + 1;
+      storage.value.bookInformation[id].currentSentenceIndex = storage.value.bookInformation[id].currentSentenceIndex + 1;
       fetchSentences();
     };
 
     const goToPrevious = async () => {
       showingAnswer.value = false;
-      if (storage.value.currentSentenceIndex === 0) {
+      if (storage.value.bookInformation[id].currentSentenceIndex === 0) {
         return;
       }
-      storage.value.currentSentenceIndex = storage.value.currentSentenceIndex - 1;
+      storage.value.bookInformation[id].currentSentenceIndex = storage.value.bookInformation[id].currentSentenceIndex - 1;
       fetchSentences();
     };
 
@@ -182,8 +193,7 @@ export default {
       try {
         textInput.value = "";
         feedbackText.value = "";
-        console.log(storage.value.currentSentenceIndex, storage);
-        const response = await axios.get(`/api/sentences?id=${route.params.id}&lineNumber=${storage.value.currentSentenceIndex}`);
+        const response = await axios.get(`/api/sentences?id=${id}&lineNumber=${storage.value.bookInformation[id].currentSentenceIndex}`);
         console.log(response.data);
         displaySentenceTokenized.value = response.data.presentation_sentence_tokens;
         toCheckSentence.value = response.data.translation;
@@ -195,8 +205,8 @@ export default {
 
     const getBookInfo = async () => {
       const result = await axios.get(`/api/books`);
-      bookTitle.value = result.data[route.params.id]["bookTitle"];
-      numberOfSentences.value = result.data[route.params.id]["numberOfSentences"];
+      bookTitle.value = result.data[id]["bookTitle"];
+      numberOfSentences.value = result.data[id]["numberOfSentences"];
     }
 
     onMounted(() => {
