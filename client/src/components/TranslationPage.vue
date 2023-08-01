@@ -1,38 +1,48 @@
 <template>
   <div class="full-page">
-    <div class="content">
-      <div class="header">
-        <div>Book progress: {{ currentIndex + 1 }}/{{ numberOfSentences }}</div>
-        <div>Correct sentences: {{ numberPassed }}/{{ numberOfSentences }}</div>
-        <div class="sentence-token" v-for="(token, id) of displaySentenceTokenized" :key="id">
-          <Popper v-if="!!token.word" class="popper-inner">
-            <span class="token-item">{{ token.display }}&nbsp;</span>
-            <template #content>
-              <div class="custom-popover">
-                <div><span class="popover-header">{{ token.word }} <span class="sentence-part">({{ token.definition?.function }})</span></span> </div>
-                <div class="popover-body">{{ token.definition?.description }}</div>
-                <div class="popover-subheader">Translation from <a target="_blank" :href="token.definition?.link">Deepl</a></div>
-                <div class="popover-subheader">For a more detailed definition try <a target="_blank" :href="getLeoLink(token.word)">Leo</a></div>
-              </div>
-            </template>
-          </Popper>
+    <div class="centered">
+      <div class="content">
+        <div class="header">
+          <div>Book progress: {{ currentIndex + 1 }}/{{ numberOfSentences }}</div>
+          <div>Correct sentences: {{ numberPassed }}/{{ numberOfSentences }}</div>
+          <div class="sentence-token" v-for="(token, id) of displaySentenceTokenized" :key="id">
+            <Popper v-if="!!token.word" class="popper-inner">
+              <span class="token-item">{{ token.display }}&nbsp;</span>
+              <template #content>
+                <div class="custom-popover">
+                  <div><span class="popover-header">{{ token.word }} <span class="sentence-part">({{
+                    token.definition?.function }})</span></span> </div>
+                  <div class="popover-body">{{ token.definition?.description }}</div>
+                  <div class="popover-subheader">Translation from <a target="_blank"
+                      :href="token.definition?.link">Deepl</a></div>
+                  <div class="popover-subheader">For a more detailed definition try <a target="_blank"
+                      :href="getLeoLink(token.word)">Leo</a></div>
+                </div>
+              </template>
+            </Popper>
+          </div>
+          <div class="sentence-token"><a target="_blank" :href="getDeeplSentenceLink()"><img src='/DeeplLogo.svg' /></a>
+          </div>
         </div>
-        <div class="sentence-token"><a target="_blank" :href="getDeeplSentenceLink()"><img src='/DeeplLogo.svg' /></a></div>
-      </div>
-      <div v-if="showingAnswer" class="header answer-sentence">  
-          <div v-html="getDiffHtml()"></div>
-      </div>
-      <div class="form-group answer-text-area">
-        <textarea class="form-control" v-model="textInput"></textarea> 
-      </div>
-      <div class="button-group">
-        <button v-if="currentIndex !== 0" class="btn btn-primary previous" @click="goToPrevious">Previous</button>
-        <button v-if="!showingAnswer" :class="currentIndex === 0 ? 'submit-long' : 'submit'" class="btn btn-success" @click="submitText">Submit</button>
-        <button v-if="!showingAnswer" class="btn btn-danger reveal" @click="showAnswer">Show</button>
-        <button v-if="showingAnswer" :class="currentIndex === 0 ? 'next-long' : 'next'"  class="btn btn-success " @click="goToNext">Next</button>
-      </div>
-      <div class="feedback" v-if="feedbackText">
-        <span><img  class="feedback-icon" :src='passed ? "/GreenCheck.svg" : "/RedCross.svg"' /></span> {{ feedbackText }}
+        <div v-if="showingAnswer" class="header answer-sentence">
+          <div v-if="!solutionSentence" v-html="getDiffHtml()"></div>
+          <div v-else class="green">{{ solutionSentence }}</div>
+        </div>
+        <div class="form-group answer-text-area">
+          <textarea class="form-control" v-model="textInput"></textarea>
+        </div>
+        <div class="button-group">
+          <button v-if="currentIndex !== 0" class="btn btn-primary previous" @click="goToPrevious">Previous</button>
+          <button v-if="!showingAnswer" :class="currentIndex === 0 ? 'submit-long' : 'submit'" class="btn btn-success"
+            @click="submitText">Submit</button>
+          <button v-if="!showingAnswer" class="btn btn-danger reveal" @click="showAnswer">Show</button>
+          <button v-if="showingAnswer" :class="currentIndex === 0 ? 'next-long' : 'next'" class="btn btn-success "
+            @click="goToNext">Next</button>
+        </div>
+        <div class="feedback" v-if="feedbackText">
+          <span><img class="feedback-icon" :src='passed ? "/GreenCheck.svg" : "/RedCross.svg"' /></span> {{ feedbackText
+          }}
+        </div>
       </div>
     </div>
   </div>
@@ -77,12 +87,13 @@ export default {
     const submitText = async () => {
       const result = await axios.post(`/api/similarity`, { sentence1: toCheckSentence.value, sentence2: textInput.value });
       console.log(result);
+      solutionSentence.value = null;
       diff.value = result.data.diff;
       const percentage = result.data.similarity * 100;
       passed.value = percentage > 85;
       const isPassed = passed.value;
-      if(isPassed) {
-        showingAnswer.value  = true;
+      if (isPassed) {
+        showingAnswer.value = true;
         storage.value.passedIndexes.push(storage.value.currentSentenceIndex);
         numberPassed.value = storage.value.passedIndexes.length;
         console.log(numberPassed.value, storage.value.passedIndexes.length, numberOfSentences.value);
@@ -98,10 +109,10 @@ export default {
         if (token.startsWith("+")) {
           return "";
         }
-        if(token.startsWith("-")) {
+        if (token.startsWith("-")) {
           return `<span class="${className}red">${token.substring(1).trim()}</span>`;
         }
-        if(token.trim().length === 0) {
+        if (token.trim().length === 0) {
           return "</span> <span class='diif-word'>";
         }
         return `<span class="${className}green">${token.trim()}</span>`;
@@ -113,7 +124,7 @@ export default {
       if (token.startsWith("+")) {
         return className + "yellow";
       }
-      if(token.startsWith("-")) {
+      if (token.startsWith("-")) {
         return className + "red";
       }
       return className + "green";
@@ -123,11 +134,11 @@ export default {
       if (baseToken.startsWith("+") || baseToken.startsWith("-")) {
         return baseToken.substring(1);
       }
-      if(baseToken == " ") {
+      if (baseToken == " ") {
         //return the html space character
         return "&nbsp;";
       }
-      return baseToken; 
+      return baseToken;
     }
 
     //write a vue3 computed property to return the value of the current index from storage
@@ -222,6 +233,10 @@ export default {
 </script>
 
 <style>
+.centered{
+  margin: auto;
+  padding: 20px;
+}
 .sentence-token {
   display: inline;
 }
@@ -298,76 +313,84 @@ textarea.form-control {
   --popper-theme-padding: 32px;
   --popper-theme-box-shadow: 0 6px 30px -6px rgba(0, 0, 0, 0.25);
 }
-.custom-popover{
+
+.custom-popover {
   font-size: 20pt;
 }
+
 .popover-header {
   font-weight: bold;
   margin-bottom: 10px;
 }
-.token-item{
+
+.token-item {
   cursor: pointer;
 }
 
-.token-item:hover{
+.token-item:hover {
   color: darkblue;
   text-decoration: underline;
 }
 
-.popover-subheader{
+.popover-subheader {
   font-size: 10pt;
 }
 
-.sentence-part{
+.sentence-part {
   font-size: 16pt;
   font-weight: normal;
 }
 
-.answer-text-area{
+.answer-text-area {
   font-size: 32px;
   width: 80%;
 }
 
-.answer-sentence{
+.answer-sentence {
   color: midnightblue;
 }
 
-.bi-check-circle-fill{
+.bi-check-circle-fill {
   color: green;
 }
 
-.bi-x-circle-fill{
+.bi-x-circle-fill {
   color: red;
 }
 
-.feedback{
+.feedback {
   font-size: 34px;
   padding: 10px;
 }
-.feedback-icon{
+
+.feedback-icon {
   width: 50px;
   height: 50px;
 }
 
-.content{
+.content {
   font-size: 14px;
 }
-.green{
+
+.green {
   color: green;
 }
-.red{
+
+.red {
   color: red;
 }
-.yellow{
+
+.yellow {
   color: yellow;
 }
-.diff{
+
+.diff {
   width: min-content;
   padding: 0%;
   margin: 0%;
   white-space: normal;
 }
-.answer-sentence{
+
+.answer-sentence {
   width: 80%;
-}
-</style>
+}</style>

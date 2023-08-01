@@ -60,7 +60,6 @@ def get_sentence2():
     line_num = int(args['lineNumber'])
     row = german_token_dicts[book_id][line_num]
     presentation_sentence_tokens_with_definition = []
-    print(translation_dict)
     for token_info in row:
         token = token_info["word"]
         if token_info["function"] == "punctuation" and len(presentation_sentence_tokens_with_definition) > 0:
