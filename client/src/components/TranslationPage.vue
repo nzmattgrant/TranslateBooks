@@ -65,6 +65,7 @@ export default {
 
     const route = useRoute();
     const id = Number(route.params.id);
+    const bookIndex = id - 1;
     console.log("id", id);
     let bookInfos = storage.value.bookInformation;
     if(bookInfos.length <= id) {
@@ -86,7 +87,7 @@ export default {
     const showingAnswer = ref(false);
     const solutionSentence = ref("");
     const passed = ref(false);
-    const numberPassed = ref(bookInfos[id].passedIndexes.length);
+    const numberPassed = ref(bookInfos[bookIndex].passedIndexes.length);
     const diff = ref([]);
 
 
@@ -101,12 +102,12 @@ export default {
       const isPassed = passed.value;
       if (isPassed) {
         showingAnswer.value = true;
-        const bookInfo = storage.value.bookInformation[id];
+        const bookInfo = storage.value.bookInformation[bookIndex];
         let passedIndexes = bookInfo.passedIndexes;
         passedIndexes.push(bookInfo.currentSentenceIndex);
         passedIndexes = [...new Set(passedIndexes)];
         bookInfo.passedIndexes = passedIndexes;
-        storage.value.bookInformation[id] = bookInfo;
+        storage.value.bookInformation[bookIndex] = bookInfo;
         console.log("passedIndexes", passedIndexes);
         numberPassed.value = passedIndexes.length;
       }
@@ -154,7 +155,7 @@ export default {
 
     //write a vue3 computed property to return the value of the current index from storage
     const currentIndex = computed(() => {
-      return storage.value.bookInformation[id].currentSentenceIndex;
+      return storage.value.bookInformation[bookIndex].currentSentenceIndex;
     });
 
     const getLeoLink = (word) => {
@@ -168,19 +169,19 @@ export default {
     const goToNext = async () => {
       console.log(numberOfSentences.value);
       showingAnswer.value = false;
-      if (storage.value.bookInformation[id].currentSentenceIndex === numberOfSentences.value - 1) {
+      if (storage.value.bookInformation[bookIndex].currentSentenceIndex === numberOfSentences.value - 1) {
         return;
       }
-      storage.value.bookInformation[id].currentSentenceIndex = storage.value.bookInformation[id].currentSentenceIndex + 1;
+      storage.value.bookInformation[bookIndex].currentSentenceIndex = storage.value.bookInformation[bookIndex].currentSentenceIndex + 1;
       fetchSentences();
     };
 
     const goToPrevious = async () => {
       showingAnswer.value = false;
-      if (storage.value.bookInformation[id].currentSentenceIndex === 0) {
+      if (storage.value.bookInformation[bookIndex].currentSentenceIndex === 0) {
         return;
       }
-      storage.value.bookInformation[id].currentSentenceIndex = storage.value.bookInformation[id].currentSentenceIndex - 1;
+      storage.value.bookInformation[bookIndex].currentSentenceIndex = storage.value.bookInformation[bookIndex].currentSentenceIndex - 1;
       fetchSentences();
     };
 
@@ -193,7 +194,7 @@ export default {
       try {
         textInput.value = "";
         feedbackText.value = "";
-        const response = await axios.get(`/api/sentences?id=${id}&lineNumber=${storage.value.bookInformation[id].currentSentenceIndex}`);
+        const response = await axios.get(`/api/sentences?id=${id}&lineNumber=${storage.value.bookInformation[bookIndex].currentSentenceIndex}`);
         console.log(response.data);
         displaySentenceTokenized.value = response.data.presentation_sentence_tokens;
         toCheckSentence.value = response.data.translation;
@@ -205,8 +206,8 @@ export default {
 
     const getBookInfo = async () => {
       const result = await axios.get(`/api/books`);
-      bookTitle.value = result.data[id]["bookTitle"];
-      numberOfSentences.value = result.data[id]["numberOfSentences"];
+      bookTitle.value = result.data[bookIndex]["bookTitle"];
+      numberOfSentences.value = result.data[bookIndex]["numberOfSentences"];
     }
 
     onMounted(() => {

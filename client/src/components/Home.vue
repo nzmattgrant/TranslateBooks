@@ -39,12 +39,11 @@ export default {
 
     onMounted(async () => {
       const bookInfos = await getBookInfos();
-      bookInfos.forEach(bookInfo => {
-        //temporary
+      bookInfos.forEach((bookInfo, i) => {
         bookInfo.percentage = 0;
-        //if (bookInfo.slug === "the-metamorphosis") {
-        bookInfo.percentage = ((storage.value.currentSentenceIndex + 1) / bookInfo.numberOfSentences) * 100;
-        //}
+        if(storage.value.bookInformation.length > i){
+          bookInfo.percentage = (((storage.value.bookInformation[i].passedIndexes.length) / bookInfo.numberOfSentences) * 100).toFixed(2);
+        }
       });
       books.value = bookInfos;
     })
