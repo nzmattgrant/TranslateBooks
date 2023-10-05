@@ -116,16 +116,16 @@ export default {
     };
 
     const getDiffHtml = () => {
-      return "<span class='diif-word'>" + diff.value.map(token => {
+      return "<span class='dif-word'>" + diff.value.map(token => {
         const className = "diff ";
         if (token.startsWith("+")) {
           return "";
         }
+        if (token == "-  " || token.trim().length === 0) {
+          return "</span> <span class='dif-word'>";//end and start a new span
+        }
         if (token.startsWith("-")) {
           return `<span class="${className}red">${token.substring(1).trim()}</span>`;
-        }
-        if (token.trim().length === 0) {
-          return "</span> <span class='diif-word'>";
         }
         return `<span class="${className}green">${token.trim()}</span>`;
       }).join("") + "</span>";
