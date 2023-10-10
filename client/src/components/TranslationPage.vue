@@ -1,7 +1,10 @@
 <template>
   <div class="full-page">
     <div class="centered">
-      <div class="content">
+      <div v-if="isFinishPage" class="content">
+        Wow you did it great! You finished the book {{ bookTitle }}. You can now start a new book or go back to the start
+      </div>
+      <div v-else class="content">
         <div class="header">
           <div>Book progress: {{ currentIndex + 1 }}/{{ numberOfSentences }}</div>
           <div>Correct sentences: {{ numberPassed }}/{{ numberOfSentences }}</div>
@@ -66,7 +69,6 @@ export default {
     const route = useRoute();
     const id = Number(route.params.id);
     const bookIndex = id - 1;
-    console.log("id", id);
     let bookInfos = storage.value.bookInformation;
     if(bookInfos.length <= id) {
       const difference = (id + 1) - bookInfos.length;
@@ -158,6 +160,10 @@ export default {
       return storage.value.bookInformation[bookIndex].currentSentenceIndex;
     });
 
+    const isFinishPage = computed(() => {
+      return currentIndex.value === numberOfSentences.value;
+    });
+
     const getLeoLink = (word) => {
       return `https://dict.leo.org/german-english/${word}`;
     };
@@ -169,10 +175,13 @@ export default {
     const goToNext = async () => {
       console.log(numberOfSentences.value);
       showingAnswer.value = false;
-      if (storage.value.bookInformation[bookIndex].currentSentenceIndex === numberOfSentences.value - 1) {
+      if (storage.value.bookInformation[bookIndex].currentSentenceIndex === numberOfSentences.value) {
         return;
       }
       storage.value.bookInformation[bookIndex].currentSentenceIndex = storage.value.bookInformation[bookIndex].currentSentenceIndex + 1;
+      if(storage.value.bookInformation[bookIndex].currentSentenceIndex === numberOfSentences.value) {
+        return;
+      }
       fetchSentences();
     };
 
@@ -210,8 +219,10 @@ export default {
       numberOfSentences.value = result.data[bookIndex]["numberOfSentences"];
     }
 
-    onMounted(() => {
-      getBookInfo()
+    onMounted(async () => {
+      await getBookInfo();
+      //storage.value.bookInformation[bookIndex].currentSentenceIndex = numberOfSentences.value - 1;  //set the current index to the last sentence
+      //console.log("current index", storage.value.bookInformation[bookIndex].currentSentenceIndex);
       fetchSentences();
     });
 
@@ -238,6 +249,7 @@ export default {
       getDiffClass,
       getDiffToken,
       getDiffHtml,
+      isFinishPage
     };
   }
 }
