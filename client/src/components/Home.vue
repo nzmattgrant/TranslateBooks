@@ -3,13 +3,16 @@
     <div class="books-panel">
       <div class="row">
         <RouterLink class="book-item" :to="`/translate/${book.id}`" v-for="book of books">
+          <div class="item-content">
+          
           <h2 class="book-title">{{ book.title }}</h2>
           <h4 class="author">{{ book.author }}</h4>
           <div class="book-image">
             <img class="book-image" :src="`/covers/${book.slug}.jpg`" />
           </div>
           <div v-if="book.percentage < 100">{{ book.percentage }}%</div>
-          <div v-else>Complete</div>
+          <div class="complete-message" v-else><span v-if="book.percentage == 100"><img class="feedback-icon" :src='"/GreenCheck.svg"' /></span> Complete </div>
+        </div>
         </RouterLink>
       </div>
     </div>
@@ -242,4 +245,16 @@ textarea {
 .content {
   font-size: 14px;
 }
+
+.item-content span img {
+  width: 30px;
+  height: 30px;
+} 
+
+.complete-message {
+  margin-top: 10px;
+  font-size: 20px;
+  color: green;
+}
+
 </style>
