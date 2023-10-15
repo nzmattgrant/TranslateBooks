@@ -1,8 +1,9 @@
 <template>
   <div class="full-page">
     <div class="centered">
-      <div v-if="isFinishPage" class="content">
-        Wow you did it great! You finished the book {{ bookTitle }}. You can now start a new book or go back to the start
+      <div v-if="isFinishPage" class="content" style="text-align: center; font-size: 25px; display: inline;">
+        <p>Wow you did it, great! You finished the book <span style="font-weight: bold;">{{ bookTitle }}</span>.</p>
+        You can now <a href="/">start a new book</a> or <a href="#" @click="goToStart">go back to the start of this book</a> or <a href="#" @click="resetProgress">reset the progress on this book</a>.
       </div>
       <div v-else class="content">
         <div class="header">
@@ -62,6 +63,7 @@ const storage = useStorage('my-store', { bookInformation: [ { currentSentenceInd
   { mergeDefaults: true });
 
 import { ref, onMounted, computed } from 'vue';
+import _ from 'lodash';
 
 export default {
   setup() {
@@ -92,8 +94,6 @@ export default {
     const numberPassed = ref(bookInfos[bookIndex].passedIndexes.length);
     const diff = ref([]);
 
-
-
     const submitText = async () => {
       const result = await axios.post(`/api/similarity`, { sentence1: toCheckSentence.value, sentence2: textInput.value });
       console.log(result);
@@ -113,7 +113,6 @@ export default {
         console.log("passedIndexes", passedIndexes);
         numberPassed.value = passedIndexes.length;
       }
-
       feedbackText.value = `You scored: ${(percentage).toFixed(2)}%`;
     };
 
@@ -194,6 +193,22 @@ export default {
       fetchSentences();
     };
 
+    const goToStart = async () => {
+      showingAnswer.value = false;
+      if (storage.value.bookInformation[bookIndex].currentSentenceIndex === 0) {
+        return;
+      }
+      storage.value.bookInformation[bookIndex].currentSentenceIndex = 0;
+      fetchSentences();
+    };
+
+    const resetProgress = () => {
+      storage.value.bookInformation[bookIndex].currentSentenceIndex = 0;
+      storage.value.bookInformation[bookIndex].passedIndexes = [];
+      numberPassed.value = 0;
+      fetchSentences();
+    }
+
     const showAnswer = () => {
       solutionSentence.value = toCheckSentence.value;
       showingAnswer.value = true;
@@ -215,13 +230,15 @@ export default {
 
     const getBookInfo = async () => {
       const result = await axios.get(`/api/books`);
-      bookTitle.value = result.data[bookIndex]["bookTitle"];
+      bookTitle.value = result.data[bookIndex]["title"];
       numberOfSentences.value = result.data[bookIndex]["numberOfSentences"];
     }
 
     onMounted(async () => {
       await getBookInfo();
-      //storage.value.bookInformation[bookIndex].currentSentenceIndex = numberOfSentences.value - 1;  //set the current index to the last sentence
+      // storage.value.bookInformation[bookIndex].currentSentenceIndex = numberOfSentences.value - 1;  //set the current index to the last sentence
+      // storage.value.bookInformation[bookIndex].passedIndexes = _.range(numberOfSentences.value);
+      // numberPassed.value = numberOfSentences.value;
       //console.log("current index", storage.value.bookInformation[bookIndex].currentSentenceIndex);
       fetchSentences();
     });
@@ -234,6 +251,8 @@ export default {
       toCheckSentence,
       goToNext,
       goToPrevious,
+      goToStart,
+      resetProgress,
       numberOfSentences,
       bookTitle,
       submitText,
