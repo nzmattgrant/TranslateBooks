@@ -2,16 +2,14 @@
   <div class="panel-container">
     <div class="books-panel">
       <div class="row">
-        <div class="book-item" v-for="book of books">
+        <RouterLink class="book-item" :to="`/translate/${book.id}`" v-for="book of books">
           <h2 class="book-title">{{ book.title }}</h2>
           <h4 class="author">{{ book.author }}</h4>
           <div class="book-image">
-            <RouterLink :to="`/translate/${book.id}`"><img class="book-image" :src="`/covers/${book.slug}.jpg`" />
-            </RouterLink>
+            <img class="book-image" :src="`/covers/${book.slug}.jpg`" />
           </div>
-
           <div>{{ book.percentage }}%</div>
-        </div>
+        </RouterLink>
       </div>
     </div>
   </div>
@@ -41,7 +39,7 @@ export default {
       const bookInfos = await getBookInfos();
       bookInfos.forEach((bookInfo, i) => {
         bookInfo.percentage = 0;
-        if(storage.value.bookInformation.length > i){
+        if (storage.value.bookInformation.length > i) {
           bookInfo.percentage = (((storage.value.bookInformation[i].passedIndexes.length) / bookInfo.numberOfSentences) * 100).toFixed(2);
         }
       });
@@ -95,6 +93,13 @@ export default {
   border-radius: 25px;
   border: 2px solid gray;
   margin: 10px;
+  text-decoration: none;
+  color: inherit;
+}
+
+.book-item:hover {
+  text-decoration: none;
+  color: inherit;
 }
 
 .book-image {
