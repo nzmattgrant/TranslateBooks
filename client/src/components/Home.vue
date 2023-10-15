@@ -8,7 +8,8 @@
           <div class="book-image">
             <img class="book-image" :src="`/covers/${book.slug}.jpg`" />
           </div>
-          <div>{{ book.percentage }}%</div>
+          <div v-if="book.percentage < 100">{{ book.percentage }}%</div>
+          <div v-else>Complete</div>
         </RouterLink>
       </div>
     </div>
