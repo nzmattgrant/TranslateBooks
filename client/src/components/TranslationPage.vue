@@ -95,6 +95,7 @@ export default {
     const passed = ref(false);
     const numberPassed = ref(bookInfos[bookIndex].passedIndexes.length);
     const diff = ref([]);
+    const canBypassSkip = ref(false);
 
     const submitText = async () => {
       console.log("submitting text", storage.value.bookInformation[bookIndex])
@@ -226,7 +227,10 @@ export default {
       try {
         console.log("setting up", storage.value.bookInformation[bookIndex])
         const bookInfo = storage.value.bookInformation[bookIndex];
+        
         const prevInputs = bookInfo?.previousInputs ?? [];
+        const passedIndexes = bookInfo?.passedIndexes ?? [];  
+        canBypassSkip.value = passedIndexes.includes(bookInfo.currentSentenceIndex);
         textInput.value = prevInputs[bookInfo.currentSentenceIndex] ?? "";
         feedbackText.value = "";
         const response = await axios.get(`/api/sentences?id=${id}&lineNumber=${storage.value.bookInformation[bookIndex].currentSentenceIndex}`);
@@ -280,7 +284,8 @@ export default {
       getDiffToken,
       getDiffHtml,
       isFinishPage,
-      exit
+      exit,
+      canBypassSkip
     };
   }
 }
