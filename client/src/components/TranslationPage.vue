@@ -59,7 +59,7 @@ import Popper from "vue3-popper";
 import axios from 'axios';
 import { useStorage } from '@vueuse/core';
 import { useRoute } from 'vue-router'
-const storage = useStorage('my-store', { bookInformation: [ { currentSentenceIndex: 0, passedIndexes: [] } ] }, localStorage,
+const storage = useStorage('my-store', { bookInformation: [ { currentSentenceIndex: 0, passedIndexes: [], previousInputs: [] } ] }, localStorage,
   { mergeDefaults: true });
 
 import { ref, onMounted, computed } from 'vue';
@@ -74,7 +74,7 @@ export default {
     let bookInfos = storage.value.bookInformation;
     if(bookInfos.length <= id) {
       const difference = (id + 1) - bookInfos.length;
-      bookInfos = bookInfos.concat(Array(difference).fill({ currentSentenceIndex: 0, passedIndexes: [] }));
+      bookInfos = bookInfos.concat(Array(difference).fill({ currentSentenceIndex: 0, passedIndexes: [], previousInputs: [] }));
     }
     storage.value.bookInformation = bookInfos;
     const displaySentenceTokenized = ref([{
@@ -95,6 +95,9 @@ export default {
     const diff = ref([]);
 
     const submitText = async () => {
+      console.log("submitting text", storage.value.bookInformation[bookIndex])
+      const bookInfo = storage.value.bookInformation[bookIndex];
+      bookInfo.previousInputs[bookInfo.currentSentenceIndex] = textInput.value;
       const result = await axios.post(`/api/similarity`, { sentence1: toCheckSentence.value, sentence2: textInput.value });
       console.log(result);
       solutionSentence.value = null;
@@ -104,7 +107,6 @@ export default {
       const isPassed = passed.value;
       if (isPassed) {
         showingAnswer.value = true;
-        const bookInfo = storage.value.bookInformation[bookIndex];
         let passedIndexes = bookInfo.passedIndexes;
         passedIndexes.push(bookInfo.currentSentenceIndex);
         passedIndexes = [...new Set(passedIndexes)];
@@ -216,7 +218,10 @@ export default {
 
     const fetchSentences = async () => {
       try {
-        textInput.value = "";
+        console.log("setting up", storage.value.bookInformation[bookIndex])
+        const bookInfo = storage.value.bookInformation[bookIndex];
+        const prevInputs = bookInfo?.previousInputs ?? [];
+        textInput.value = prevInputs[bookInfo.currentSentenceIndex] ?? "";
         feedbackText.value = "";
         const response = await axios.get(`/api/sentences?id=${id}&lineNumber=${storage.value.bookInformation[bookIndex].currentSentenceIndex}`);
         console.log(response.data);
