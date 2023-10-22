@@ -1,12 +1,14 @@
 <template>
   <div class="full-page">
     <div class="centered">
+      
       <div v-if="isFinishPage" class="content" style="text-align: center; font-size: 25px; display: inline;">
         <p>Wow you did it, great! You finished the book <span style="font-weight: bold;">{{ bookTitle }}</span>.</p>
         You can now <a href="/">start a new book</a> or <a href="#" @click="goToStart">go back to the start of this book</a> or <a href="#" @click="resetProgress">reset the progress on this book</a>.
       </div>
       <div v-else class="content">
         <div class="header">
+          <div class="exit-cross" @click="exit"><img src="/CloseCross.svg"></div>
           <div>Book progress: {{ currentIndex + 1 }}/{{ numberOfSentences }}</div>
           <div>Correct sentences: {{ numberPassed }}/{{ numberOfSentences }}</div>
           <div class="sentence-token" v-for="(token, id) of displaySentenceTokenized" :key="id">
@@ -156,6 +158,10 @@ export default {
       return baseToken;
     }
 
+    const exit = () => {
+      window.location.href = "/";
+    };
+
     //write a vue3 computed property to return the value of the current index from storage
     const currentIndex = computed(() => {
       return storage.value.bookInformation[bookIndex].currentSentenceIndex;
@@ -273,7 +279,8 @@ export default {
       getDiffClass,
       getDiffToken,
       getDiffHtml,
-      isFinishPage
+      isFinishPage,
+      exit
     };
   }
 }
@@ -283,6 +290,7 @@ export default {
 .centered{
   margin: auto;
   padding: 20px;
+  position: relative;
 }
 .sentence-token {
   display: inline;
@@ -440,4 +448,20 @@ textarea.form-control {
 
 .answer-sentence {
   width: 80%;
-}</style>
+}
+
+.exit-cross {
+    float: right;
+    width: 30px;
+    height: 30px;
+    margin-right: 10px;
+    margin-top: 10px;
+    cursor: pointer;
+}
+
+.exit-cross img {
+    width: 100%;
+    height: 100%;
+}
+
+</style>
